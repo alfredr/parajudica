@@ -1,5 +1,7 @@
 # Parajudica
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17825090.svg)](https://doi.org/10.5281/zenodo.17825090)
+
 A metamodel and fixed-point inference system for context-dependent data classification and multi-framework compliance.
 
 ## Overview

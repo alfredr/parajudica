@@ -1,0 +1,30 @@
+{
+  "title": "Parajudica: An RDF-Based Reasoner and Metamodel for Multi-Framework Context-Dependent Data Compliance Assessments",
+  "upload_type": "software",
+  "access_right": "open",
+  "license": "cc-by-4.0",
+  "creators": [
+    {
+      "name": "Moreau, Luc",
+      "affiliation": "University of Sussex, Brighton, United Kingdom"
+    },
+    {
+      "name": "Rossi, Alfred",
+      "affiliation": "Immuta Research, Boston, Massachusetts, USA"
+    },
+    {
+      "name": "Stalla-Bourdillon, Sophie",
+      "affiliation": "Brussels Privacy Hub, Vrije Universiteit Brussel, Brussels, Belgium"
+    }
+  ],
+  "keywords": [
+    "RDF",
+    "SPARQL",
+    "compliance",
+    "GDPR",
+    "HIPAA",
+    "data governance",
+    "semantic web"
+  ],
+  "description": "A metamodel and fixed-point inference system for context-dependent data classification and multi-framework compliance."
+}

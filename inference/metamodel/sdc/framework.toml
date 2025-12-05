@@ -1,0 +1,9 @@
+name = "sdc"
+type = "core"
+version = "1.0.0"
+description = "Structured Data Capture - core metamodel for data fields"
+
+[files]
+model = ["sdc.ttl"]
+rules = ["pj-mapping.rules"]
+constructs = ["field-declarations.rq"]

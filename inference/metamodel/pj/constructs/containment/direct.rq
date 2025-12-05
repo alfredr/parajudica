@@ -1,0 +1,37 @@
+PREFIX : <https://openprovenance.org/ns/parajudica#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# Materialize ContainmentAssertions for containers that directly have labels
+# needed by ContainsLabelConditions
+
+CONSTRUCT {
+    ?containmentAssertion rdf:type :ContainmentAssertion ;
+                          :assertedOn ?container ;
+                          :assertsContains ?requiredLabel ;
+                          :assertedInScope ?scope ;
+                          :assertedByFramework ?framework .
+}
+WHERE {
+    # Start from conditions that need containment checks
+    ?condition rdf:type :ContainsLabelCondition ;
+              :requiresContains ?requiredLabel .
+
+    # Find containers that have this label directly
+    ?assertion rdf:type :ComplianceAssertion ;
+              :assertedOn ?container ;
+              :assertsLabel ?requiredLabel ;
+              :assertedInScope ?scope ;
+              :assertedByFramework ?framework .
+
+    # Generate deterministic URI
+    BIND(IRI(CONCAT("urn:containment:",
+                    MD5(CONCAT(STR(?container), ":", STR(?requiredLabel), ":",
+                              STR(?scope), ":", STR(?framework)))))
+         as ?containmentAssertion)
+
+    # Only create if doesn't already exist
+    FILTER NOT EXISTS {
+        ?containmentAssertion rdf:type :ContainmentAssertion .
+    }
+}

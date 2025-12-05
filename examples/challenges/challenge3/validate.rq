@@ -1,0 +1,29 @@
+PREFIX : <https://openprovenance.org/ns/parajudica#>
+PREFIX base: <https://openprovenance.org/ns/facet/base#>
+PREFIX hipaa: <https://openprovenance.org/ns/facet/hipaa#>
+PREFIX gdpr: <https://openprovenance.org/ns/facet/gdpr#>
+PREFIX app: <https://example.org/medical#>
+
+# Challenge 3: Propagation Semantics
+# Show ProvidersInfo PHI status in ResearchScope
+# With joinable relationships: Gets PHI via HIPAA propagation
+# Without joinable relationships: No PHI
+
+SELECT ?framework ?label
+WHERE {
+  VALUES ?container { app:ProvidersInfo }
+  VALUES ?scope { app:ResearchScope }
+  
+  ?assertion a :ComplianceAssertion ;
+    :assertedOn ?container ;
+    :assertsLabel ?label ;
+    :assertedInScope ?scope ;
+    :assertedByFramework ?framework .
+    
+  # Focus on PHI and PersonalData
+  FILTER(?label IN (
+    hipaa:ProtectedHealthInformation,
+    gdpr:PersonalData
+  ))
+}
+ORDER BY ?framework ?label

@@ -1,0 +1,24 @@
+PREFIX : <https://openprovenance.org/ns/parajudica#>
+PREFIX base: <https://openprovenance.org/ns/facet/base#>
+PREFIX hipaa: <https://openprovenance.org/ns/facet/hipaa#>
+PREFIX gdpr: <https://openprovenance.org/ns/facet/gdpr#>
+PREFIX app: <https://example.org/medical#>
+
+# Challenge 2: Framework Divergence - Show ALL labels
+# Not cherry-picking, shows everything both frameworks assign
+
+SELECT ?scope ?container ?framework ?label
+WHERE {
+  VALUES ?container { app:ProvidersInfo app:PatientTreatments }
+  VALUES ?scope { app:ResearchScope app:MedicalGovernanceScope}
+  
+  ?assertion a :ComplianceAssertion ;
+    :assertedOn ?container ;
+    :assertsLabel ?label ;
+    :assertedInScope ?scope ;
+    :assertedByFramework ?framework .
+    
+  # Show all labels from HIPAA and GDPR frameworks (not base)
+  FILTER(?framework IN (hipaa:HIPAAFramework, gdpr:GDPRFramework))
+}
+ORDER BY ?scope ?container ?framework ?label

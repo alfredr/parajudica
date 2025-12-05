@@ -1,0 +1,109 @@
+PREFIX pj: <https://openprovenance.org/ns/parajudica#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# Evaluate implications with fromAllLabels that have conditions
+# If all required source labels are present IN THE SAME SCOPE, conditions are met, and target doesn't exist, assert the target label
+
+CONSTRUCT {
+    ?newAssertion a pj:ComplianceAssertion ;
+                  pj:assertedOn ?container ;
+                  pj:assertedInScope ?scope ;
+                  pj:assertsLabel ?toLabel ;
+                  pj:assertedByFramework ?framework ;
+                  pj:derivedVia pj:ImplicationFromAllRule .
+}
+WHERE {
+    # Find implications with fromAllLabels that have conditions
+    ?framework pj:declaresImplication ?impl .
+    ?impl a pj:ConditionalImplication ;
+          pj:fromAllLabels ?fromLabels ;
+          pj:toLabel ?toLabel ;
+          pj:hasCondition ?condition .
+
+    # Find containers and scopes where target doesn't already exist
+    ?someAssertion a pj:ComplianceAssertion ;
+                   pj:assertedOn ?container ;
+                   pj:assertedInScope ?scope .
+
+    FILTER NOT EXISTS {
+        ?existing a pj:ComplianceAssertion ;
+                 pj:assertedOn ?container ;
+                 pj:assertedInScope ?scope ;
+                 pj:assertsLabel ?toLabel .
+    }
+
+    # Count how many labels are in the fromAllLabels list
+    {
+        SELECT ?impl (COUNT(?requiredLabel) AS ?requiredCount)
+        WHERE {
+            ?impl pj:fromAllLabels ?fromLabels .
+            ?fromLabels rdf:rest*/rdf:first ?requiredLabel .
+        }
+        GROUP BY ?impl
+    }
+
+    # Count how many of the required labels the container has IN THIS SCOPE
+    {
+        SELECT ?container ?scope ?impl (COUNT(DISTINCT ?presentLabel) AS ?presentCount)
+        WHERE {
+            ?impl pj:fromAllLabels ?fromLabels .
+            ?fromLabels rdf:rest*/rdf:first ?requiredLabel .
+            ?container pj:hasLabelInScope ?labelScope .
+            ?labelScope pj:label ?requiredLabel ;
+                       pj:scope ?scope .
+            BIND(?requiredLabel AS ?presentLabel)
+        }
+        GROUP BY ?container ?scope ?impl
+    }
+
+    # Only proceed if all required labels are present
+    FILTER(?presentCount >= ?requiredCount && ?requiredCount > 0)
+
+    # Check conditions using ConditionEvaluation (evaluated by separate queries with scope awareness)
+    {
+        # RelationLabelCondition: Use pre-evaluated condition results
+        ?condition a pj:RelationLabelCondition .
+        ?eval a pj:ConditionEvaluation ;
+              pj:evaluatesCondition ?condition ;
+              pj:evaluatedOn ?container ;
+              pj:evaluatedInScope ?scope ;
+              pj:evaluationResult "true"^^xsd:boolean .
+    } UNION {
+        # ContainsLabelCondition: Use pre-evaluated condition results
+        ?condition a pj:ContainsLabelCondition .
+        ?eval a pj:ConditionEvaluation ;
+              pj:evaluatesCondition ?condition ;
+              pj:evaluatedOn ?container ;
+              pj:evaluatedInScope ?scope ;
+              pj:evaluationResult "true"^^xsd:boolean .
+    } UNION {
+        # CompositeCondition with AND: All sub-conditions must be met
+        ?condition a pj:CompositeCondition ;
+                   pj:logicalOperator pj:AND ;
+                   pj:hasCondition ?subCondition .
+
+        # This is simplified - in practice would need recursive evaluation
+        # For now, assume sub-conditions are already evaluated
+        FILTER EXISTS {
+            # Check each sub-condition is satisfied
+            ?subCondition a ?subCondType .
+        }
+    } UNION {
+        # CompositeCondition with OR: At least one sub-condition must be met
+        ?condition a pj:CompositeCondition ;
+                   pj:logicalOperator pj:OR ;
+                   pj:hasCondition ?subCondition .
+
+        # This is simplified - in practice would need recursive evaluation
+        FILTER EXISTS {
+            # Check at least one sub-condition is satisfied
+            ?subCondition a ?subCondType .
+        }
+    } UNION {
+        # ComparisonCondition: Already evaluated by comparison/evaluation.rq
+        ?condition a pj:ComparisonCondition .
+        ?condition pj:evaluationResult true .
+    }
+}

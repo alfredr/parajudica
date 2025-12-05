@@ -1,0 +1,107 @@
+@prefix : <https://openprovenance.org/ns/facet/sdc#> .
+@prefix pj: <https://openprovenance.org/ns/parajudica#> .
+@prefix base: <https://openprovenance.org/ns/facet/base#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix app: <https://example.org/medical#> .
+
+# Aggregated health data with k-anonymity = 12 (EMA threshold)
+# Demonstrates framework divergence at higher k values
+# Each cohort has exactly 12 records sharing same quasi-identifiers
+app:AggregatedHealth12 a :Table ;
+  pj:hasTag base:Healthcare ;
+  pj:hasTag base:Individual ;
+  :declaresField [
+    :forFieldName "recordId" ;
+    :hasLabel base:InternalUUID  # Meaningless internal identifier
+  ] ;
+  :declaresField [
+    :forFieldName "maritalStatus" ;
+    :hasLabel base:MaritalStatus
+  ] ;
+  :declaresField [
+    :forFieldName "postalCode" ;
+    :hasLabel base:ZipCode
+  ] ;
+  :declaresField [
+    :forFieldName "year" ;
+    :hasLabel base:Age
+  ] ;
+  :declaresField [
+    :forFieldName "diagCode" ;
+    :hasLabel base:DiagnosisCode
+  ] ;
+  :hasRecords
+    # Cohort 1: Married, 10001, 1960, E11.9 (12 records for k=12)
+    [ a :Record ;
+      :hasField [ :fieldName "recordId"; :fieldValue "k12-001" ],
+                [ :fieldName "maritalStatus"; :fieldValue "Married" ],
+                [ :fieldName "postalCode"; :fieldValue "10001" ],
+                [ :fieldName "year"; :fieldValue "1960"^^xsd:integer ],
+                [ :fieldName "diagCode"; :fieldValue "E11.9" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "recordId"; :fieldValue "k12-002" ],
+                [ :fieldName "maritalStatus"; :fieldValue "Married" ],
+                [ :fieldName "postalCode"; :fieldValue "10001" ],
+                [ :fieldName "year"; :fieldValue "1960"^^xsd:integer ],
+                [ :fieldName "diagCode"; :fieldValue "E11.9" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "recordId"; :fieldValue "k12-003" ],
+                [ :fieldName "maritalStatus"; :fieldValue "Married" ],
+                [ :fieldName "postalCode"; :fieldValue "10001" ],
+                [ :fieldName "year"; :fieldValue "1960"^^xsd:integer ],
+                [ :fieldName "diagCode"; :fieldValue "E11.9" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "recordId"; :fieldValue "k12-004" ],
+                [ :fieldName "maritalStatus"; :fieldValue "Married" ],
+                [ :fieldName "postalCode"; :fieldValue "10001" ],
+                [ :fieldName "year"; :fieldValue "1960"^^xsd:integer ],
+                [ :fieldName "diagCode"; :fieldValue "E11.9" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "recordId"; :fieldValue "k12-005" ],
+                [ :fieldName "maritalStatus"; :fieldValue "Married" ],
+                [ :fieldName "postalCode"; :fieldValue "10001" ],
+                [ :fieldName "year"; :fieldValue "1960"^^xsd:integer ],
+                [ :fieldName "diagCode"; :fieldValue "E11.9" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "recordId"; :fieldValue "k12-006" ],
+                [ :fieldName "maritalStatus"; :fieldValue "Married" ],
+                [ :fieldName "postalCode"; :fieldValue "10001" ],
+                [ :fieldName "year"; :fieldValue "1960"^^xsd:integer ],
+                [ :fieldName "diagCode"; :fieldValue "E11.9" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "recordId"; :fieldValue "k12-007" ],
+                [ :fieldName "maritalStatus"; :fieldValue "Married" ],
+                [ :fieldName "postalCode"; :fieldValue "10001" ],
+                [ :fieldName "year"; :fieldValue "1960"^^xsd:integer ],
+                [ :fieldName "diagCode"; :fieldValue "E11.9" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "recordId"; :fieldValue "k12-008" ],
+                [ :fieldName "maritalStatus"; :fieldValue "Married" ],
+                [ :fieldName "postalCode"; :fieldValue "10001" ],
+                [ :fieldName "year"; :fieldValue "1960"^^xsd:integer ],
+                [ :fieldName "diagCode"; :fieldValue "E11.9" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "recordId"; :fieldValue "k12-009" ],
+                [ :fieldName "maritalStatus"; :fieldValue "Married" ],
+                [ :fieldName "postalCode"; :fieldValue "10001" ],
+                [ :fieldName "year"; :fieldValue "1960"^^xsd:integer ],
+                [ :fieldName "diagCode"; :fieldValue "E11.9" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "recordId"; :fieldValue "k12-010" ],
+                [ :fieldName "maritalStatus"; :fieldValue "Married" ],
+                [ :fieldName "postalCode"; :fieldValue "10001" ],
+                [ :fieldName "year"; :fieldValue "1960"^^xsd:integer ],
+                [ :fieldName "diagCode"; :fieldValue "E11.9" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "recordId"; :fieldValue "k12-011" ],
+                [ :fieldName "maritalStatus"; :fieldValue "Married" ],
+                [ :fieldName "postalCode"; :fieldValue "10001" ],
+                [ :fieldName "year"; :fieldValue "1960"^^xsd:integer ],
+                [ :fieldName "diagCode"; :fieldValue "E11.9" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "recordId"; :fieldValue "k12-012" ],
+                [ :fieldName "maritalStatus"; :fieldValue "Married" ],
+                [ :fieldName "postalCode"; :fieldValue "10001" ],
+                [ :fieldName "year"; :fieldValue "1960"^^xsd:integer ],
+                [ :fieldName "diagCode"; :fieldValue "E11.9" ] ] .

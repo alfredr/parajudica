@@ -1,0 +1,35 @@
+PREFIX pj: <https://openprovenance.org/ns/parajudica#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+# Propagate marks from CompositeConditions to their subconditions
+# When a CompositeCondition is marked for evaluation, all its subconditions
+# need to be evaluated to determine the composite's result
+
+CONSTRUCT {
+    ?subMark rdf:type pj:ConditionMark ;
+             pj:markedCondition ?subCondition ;
+             pj:markedForContainer ?container ;
+             pj:markedInScope ?scope ;
+             pj:markedFromComposite ?compositeCondition .
+}
+WHERE {
+    # Find marked CompositeConditions
+    ?mark rdf:type pj:ConditionMark ;
+          pj:markedCondition ?compositeCondition ;
+          pj:markedForContainer ?container ;
+          pj:markedInScope ?scope .
+    
+    # Check if it's a CompositeCondition
+    ?compositeCondition rdf:type pj:CompositeCondition ;
+                        pj:hasCondition ?subCondition .
+    
+    # Generate deterministic mark URI for subcondition
+    BIND(IRI(CONCAT("urn:mark:",
+                    MD5(CONCAT(STR(?subCondition), ":", STR(?container), ":", STR(?scope)))))
+         AS ?subMark)
+    
+    # Only create if mark doesn't already exist
+    FILTER NOT EXISTS {
+        ?subMark rdf:type pj:ConditionMark .
+    }
+}

@@ -1,0 +1,23 @@
+PREFIX pj: <https://openprovenance.org/ns/parajudica#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+# Expand pj:fromAnyLabel in subclass declarations into fromLabel properties
+# This pre-computes the list traversal once to avoid expensive repeated traversals
+# For example: fromAnyLabel (A B C) creates:
+# - fromLabel A
+# - fromLabel B
+# - fromLabel C
+
+CONSTRUCT {
+    # Add fromLabel for each label in the list
+    ?subclassDecl pj:fromLabel ?singleLabel .
+}
+WHERE {
+    # Find subclass declarations with fromAnyLabel lists
+    ?framework pj:declaresSubclassOf ?subclassDecl .
+    ?subclassDecl pj:fromAnyLabel ?labelList .
+
+    # Extract individual labels from the list
+    ?labelList rdf:rest*/rdf:first ?singleLabel .
+}

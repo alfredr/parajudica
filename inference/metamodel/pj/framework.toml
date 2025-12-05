@@ -1,0 +1,48 @@
+name = "pj"
+type = "core"
+version = "1.0.0"
+description = "Parajudica - core metamodel with inference system"
+
+[files]
+model = ["pj.ttl"]
+rules = [
+    "rules/availability.rules",
+    "rules/parent-framework.rules",
+    "rules/utilities.rules",
+    "rules/inheritance.rules"
+]
+constructs = [
+    "constructs/assertions/index-label-scope.rq",
+    "constructs/tags/materialize.rq",
+    "constructs/propagation/expand-facet-rules.rq",
+    "constructs/propagation/inward.rq",
+    "constructs/propagation/outward.rq",
+    "constructs/propagation/peer.rq",
+    "constructs/propagation/joinable.rq",
+    "constructs/subclass/expand-from-labels.rq",
+    "constructs/subclass/subclass.rq",
+    "constructs/containment/direct.rq",
+    "constructs/containment/from-fields.rq",
+    "constructs/containment/propagate.rq",
+    # Marking phase - mark conditions that need evaluation
+    "constructs/conditions/composite/mark/conditional-implication.rq",
+    "constructs/conditions/composite/mark/subconditions.rq",
+    # Condition evaluation phase
+    # TODO: Delete counting.rq file later - removed from here but kept for testing
+    "constructs/conditions/comparison.rq",
+    "constructs/conditions/contains.rq",
+    "constructs/conditions/relation/self.rq",
+    "constructs/conditions/relation/parent.rq",
+    # Composite condition evaluation
+    "constructs/conditions/composite/and/evaluate.rq",
+    "constructs/conditions/composite/or/evaluate.rq",
+    # Conditional and implication evaluation
+    "constructs/conditional/evaluate.rq",
+    "constructs/equivalence/expand.rq",
+    "constructs/implications/expand-from-labels.rq",
+    "constructs/implications/expand-unconditional-from-labels.rq",
+    "constructs/implications/expand-to-labels.rq",
+    "constructs/implications/evaluate-single.rq",
+    "constructs/implications/evaluate-unconditional.rq",
+    "constructs/implications/evaluate-from-all.rq"
+]

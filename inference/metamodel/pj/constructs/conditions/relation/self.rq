@@ -1,0 +1,42 @@
+PREFIX pj: <https://openprovenance.org/ns/parajudica#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# RelationLabelCondition Evaluation - Self Relations
+# Evaluates marked RelationLabelConditions where onRelation is Self
+# Uses marks to know which conditions need evaluation for which containers
+
+CONSTRUCT {
+    ?eval rdf:type pj:ConditionEvaluation ;
+          pj:evaluatesCondition ?condition ;
+          pj:evaluatedOn ?container ;
+          pj:evaluatedInScope ?scope ;
+          pj:evaluationResult "true"^^xsd:boolean .
+}
+WHERE {
+    # Find marked conditions
+    ?mark rdf:type pj:ConditionMark ;
+          pj:markedCondition ?condition ;
+          pj:markedForContainer ?container ;
+          pj:markedInScope ?scope .
+    
+    # Check if it's a RelationLabelCondition with Self relation
+    ?condition rdf:type pj:RelationLabelCondition ;
+               pj:onRelation pj:Self ;
+               pj:requiresLabel ?requiredLabel .
+    
+    # Check if container has the required label in the scope
+    ?container pj:hasLabelInScope ?labelScope .
+    ?labelScope pj:label ?requiredLabel ;
+                pj:scope ?scope .
+    
+    # Create deterministic evaluation URI
+    BIND(IRI(CONCAT("urn:eval:relation:",
+                    MD5(CONCAT(STR(?condition), ":", STR(?container), ":", STR(?scope)))))
+         AS ?eval)
+    
+    # Only create if not already exists
+    FILTER NOT EXISTS {
+        ?eval rdf:type pj:ConditionEvaluation .
+    }
+}

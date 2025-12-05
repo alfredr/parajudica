@@ -1,0 +1,88 @@
+PREFIX : <https://openprovenance.org/ns/parajudica#>
+PREFIX base: <https://openprovenance.org/ns/facet/base#>
+PREFIX hipaa: <https://openprovenance.org/ns/facet/hipaa#>
+PREFIX gdpr: <https://openprovenance.org/ns/facet/gdpr#>
+PREFIX italy: <https://openprovenance.org/ns/facet/italy#>
+PREFIX sdc: <https://openprovenance.org/ns/facet/sdc#>
+PREFIX app: <https://example.org/medical#>
+
+# Challenge 5: K-Anonymity with Internal UUID
+# Shows how the same table with k=3 and meaningless UUID gets different classifications
+# - HIPAA Safe Harbor: PHI (has Age/ZipCode from 18 identifiers)
+# - HIPAA Expert Determination: Not PHI (k >= 3 for quasi-identifiers)
+# - Italian DPA: Personal data (UUID enables singling out)
+# - Standard GDPR: May not be personal data (UUID is internal only)
+
+SELECT DISTINCT ?table ?framework ?label ?value ?comment
+WHERE {
+  VALUES ?table { app:AggregatedHealth }
+  
+  {
+    # K-anonymity assessment
+    ?assertion a :ComplianceAssertion ;
+      :assertedOn ?table ;
+      :assertsLabel base:KAnonymityAnalysis ;
+      :assertedByFramework ?framework ;
+      :hasParameterValue ?param .
+    ?param :parameterName "minimumCohortSize" ;
+           :parameterValue ?value .
+    BIND(base:KAnonymityAnalysis AS ?label)
+    BIND(CONCAT("k = ", STR(?value), " (excluding internal UUIDs)") AS ?comment)
+  }
+  UNION
+  {
+    # High re-identification risk
+    ?assertion a :ComplianceAssertion ;
+      :assertedOn ?table ;
+      :assertsLabel hipaa:HighReidentificationRisk ;
+      :assertedByFramework ?framework .
+    BIND(hipaa:HighReidentificationRisk AS ?label)
+    BIND("" AS ?value)
+    BIND("k < 3 triggers high risk" AS ?comment)
+  }
+  UNION
+  {
+    # PHI status
+    ?assertion a :ComplianceAssertion ;
+      :assertedOn ?table ;
+      :assertsLabel hipaa:ProtectedHealthInformation ;
+      :assertedByFramework ?framework .
+    BIND(hipaa:ProtectedHealthInformation AS ?label)
+    BIND("" AS ?value)
+    BIND("Protected Health Information" AS ?comment)
+  }
+  UNION
+  {
+    # Safe Harbor identifiers
+    ?assertion a :ComplianceAssertion ;
+      :assertedOn ?table ;
+      :assertsLabel hipaa:SafeHarborIdentifier ;
+      :assertedByFramework ?framework .
+    BIND(hipaa:SafeHarborIdentifier AS ?label)
+    BIND("" AS ?value)
+    BIND("Contains Age/ZipCode (Safe Harbor items)" AS ?comment)
+  }
+  UNION
+  {
+    # GDPR Personal Data
+    ?assertion a :ComplianceAssertion ;
+      :assertedOn ?table ;
+      :assertsLabel gdpr:PersonalData ;
+      :assertedByFramework ?framework .
+    BIND(gdpr:PersonalData AS ?label)
+    BIND("" AS ?value)
+    BIND("GDPR personal data classification" AS ?comment)
+  }
+  UNION
+  {
+    # Internal identifier detection
+    ?assertion a :ComplianceAssertion ;
+      :assertedOn ?table ;
+      :assertsLabel base:InternalIdentifier ;
+      :assertedByFramework ?framework .
+    BIND(base:InternalIdentifier AS ?label)
+    BIND("" AS ?value)
+    BIND("UUID is internal-only identifier" AS ?comment)
+  }
+}
+ORDER BY ?table ?framework ?label

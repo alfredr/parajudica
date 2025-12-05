@@ -1,0 +1,8 @@
+name = "hipaa"
+type = "privacy"
+version = "1.0.0"
+description = "HIPAA Privacy Rule compliance framework"
+depends_on = ["base"]
+
+[files]
+model = ["model/hipaa.ttl"]

@@ -1,0 +1,66 @@
+@prefix : <https://openprovenance.org/ns/parajudica#>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix sdc: <https://openprovenance.org/ns/facet/sdc#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+
+
+[TagsMaterializeWhereVisible:
+  (?SomeAssertion rdf:type :ComplianceAssertion)
+  (?SomeAssertion :assertedOn ?Container)
+  (?SomeAssertion :assertedInScope ?Scope)
+  (?Container :hasTag ?Tag)
+  (?Tag :introducedByFramework ?Framework)
+  makeSkolem(?TagAssertion, ?Container, ?Tag, ?Framework, ?Scope, "assertion")
+  noValue(?TagAssertion rdf:type :ComplianceAssertion)
+  ->
+  (?TagAssertion rdf:type :ComplianceAssertion)
+  (?TagAssertion :assertedOn ?Container)
+  (?TagAssertion :assertsLabel ?Tag)
+  (?TagAssertion :assertedInScope ?Scope)
+  (?TagAssertion :assertedByFramework ?Framework)
+  (?TagAssertion :isExternalFact "true"^^xsd:boolean)
+  (?TagAssertion :isGroundAssertion "true"^^xsd:boolean)
+]
+
+[FieldDeclarationsMaterialize:
+  (?Table sdc:declaresField ?FieldDecl)
+  (?FieldDecl sdc:forFieldName ?FieldName)
+  (?FieldDecl sdc:hasLabel ?Label)
+  (?Table sdc:hasRecords ?Record)
+  (?Record sdc:hasField ?Field)
+  (?Field sdc:fieldName ?FieldName)
+  (?TableAssertion rdf:type :ComplianceAssertion)
+  (?TableAssertion :assertedOn ?Table)
+  (?TableAssertion :assertedInScope ?Scope)
+  (?Label :introducedByFramework ?Framework)
+  makeSkolem(?FieldAssertion, ?Field, ?Label, ?Framework, ?Scope, "field-decl")
+  noValue(?FieldAssertion rdf:type :ComplianceAssertion)
+  ->
+  (?FieldAssertion rdf:type :ComplianceAssertion)
+  (?FieldAssertion :assertedOn ?Field)
+  (?FieldAssertion :assertsLabel ?Label)
+  (?FieldAssertion :assertedInScope ?Scope)
+  (?FieldAssertion :assertedByFramework ?Framework)
+  (?FieldAssertion :isExternalFact "true"^^xsd:boolean)
+  (?FieldAssertion :isGroundAssertion "true"^^xsd:boolean)
+]
+
+[FieldTagsMaterialize:
+  (?TableAssertion rdf:type :ComplianceAssertion)
+  (?TableAssertion :assertedOn ?Table)
+  (?TableAssertion :assertedInScope ?Scope)
+  (?Table :hasField ?Field)
+  (?Field :hasTag ?Tag)
+  (?Tag :introducedByFramework ?Framework)
+  makeSkolem(?FieldTagAssertion, ?Table, ?Tag, ?Framework, ?Scope, "assertion")
+  noValue(?FieldTagAssertion rdf:type :ComplianceAssertion)
+  ->
+  (?FieldTagAssertion rdf:type :ComplianceAssertion)
+  (?FieldTagAssertion :assertedOn ?Table)
+  (?FieldTagAssertion :assertedOnField ?Field)
+  (?FieldTagAssertion :assertsLabel ?Tag)
+  (?FieldTagAssertion :assertedInScope ?Scope)
+  (?FieldTagAssertion :assertedByFramework ?Framework)
+  (?FieldTagAssertion :isExternalFact "true"^^xsd:boolean)
+  (?FieldTagAssertion :isGroundAssertion "true"^^xsd:boolean)
+]

@@ -1,0 +1,119 @@
+PREFIX : <https://openprovenance.org/ns/parajudica#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# Generic Comparison Condition Evaluation
+#
+# Evaluates ComparisonCondition objects by:
+# 1. Extracting left value from its source (literal, label parameter, or default)
+# 2. Extracting right value from its source (literal, label parameter, or default)
+# 3. Applying the comparison operator
+# 4. Creating ConditionEvaluation if comparison succeeds
+#
+# This replaces the ThresholdRule system with a more flexible approach that
+# can compare any values from any sources.
+
+CONSTRUCT {
+    ?eval rdf:type :ConditionEvaluation ;
+          :evaluatesCondition ?condition ;
+          :evaluatedOn ?container ;
+          :evaluatedInScope ?scope ;
+          :evaluationResult "true"^^xsd:boolean .
+}
+WHERE {
+    # Start from comparison conditions that exist
+    ?condition rdf:type :ComparisonCondition ;
+              :leftSource ?leftSource ;
+              :rightSource ?rightSource ;
+              :comparisonOperator ?operator .
+
+    # Find implications using this condition
+    ?impl :hasCondition ?condition ;
+          :fromLabel ?fromLabel .
+
+    # Find containers with fromLabel in specific scopes (using index)
+    ?container :hasLabelInScope ?labelScope .
+    ?labelScope :label ?fromLabel ;
+               :scope ?scope .
+
+    # Extract left value
+    OPTIONAL {
+        ?leftSource :sourceType :LabelParameter ;
+                   :sourceLabel ?leftLabel ;
+                   :sourceParameter ?leftParam .
+        ?leftAssertion rdf:type :ComplianceAssertion ;
+                      :assertsLabel ?leftLabel ;
+                      :assertedOn ?container ;
+                      :assertedInScope ?scope ;
+                      :hasParameterValue ?leftPV .
+        ?leftPV :parameterName ?leftParam ;
+               :parameterValue ?leftExtracted .
+    }
+
+    OPTIONAL {
+        ?leftSource :sourceType :Literal ;
+                   :literalValue ?leftLiteral .
+    }
+
+    OPTIONAL {
+        ?leftSource :defaultValue ?leftDefault .
+    }
+
+    BIND(COALESCE(?leftExtracted, ?leftLiteral, ?leftDefault) as ?leftValue)
+
+    # Extract right value
+    OPTIONAL {
+        ?rightSource :sourceType :LabelParameter ;
+                    :sourceLabel ?rightLabel ;
+                    :sourceParameter ?rightParam .
+        ?rightAssertion rdf:type :ComplianceAssertion ;
+                       :assertsLabel ?rightLabel ;
+                       :assertedOn ?container ;
+                       :assertedInScope ?scope ;
+                       :hasParameterValue ?rightPV .
+        ?rightPV :parameterName ?rightParam ;
+                :parameterValue ?rightExtracted .
+    }
+
+    OPTIONAL {
+        ?rightSource :sourceType :Literal ;
+                    :literalValue ?rightLiteral .
+    }
+
+    OPTIONAL {
+        ?rightSource :defaultValue ?rightDefault .
+    }
+
+    BIND(COALESCE(?rightExtracted, ?rightLiteral, ?rightDefault) as ?rightValue)
+
+    # Need container and scope from at least one side
+    # (Label parameters provide this, literals need context)
+    FILTER(BOUND(?container) && BOUND(?scope))
+
+    # Both values must be bound for comparison
+    FILTER(BOUND(?leftValue) && BOUND(?rightValue))
+
+    # Apply comparison based on operator (using pj.ttl definitions)
+    FILTER(
+        (?operator = :lessThan && ?leftValue < ?rightValue) ||
+        (?operator = :lessThanOrEqual && ?leftValue <= ?rightValue) ||
+        (?operator = :greaterThan && ?leftValue > ?rightValue) ||
+        (?operator = :greaterThanOrEqual && ?leftValue >= ?rightValue) ||
+        (?operator = :equals && ?leftValue = ?rightValue) ||
+        (?operator = :notEquals && ?leftValue != ?rightValue)
+        # Note: :inRange would require extracting min/max from rightSource, not implemented yet
+    )
+
+    # Generate stable evaluation URI
+    BIND(IRI(CONCAT("urn:eval:comp:",
+                    MD5(CONCAT(STR(?condition), ":", STR(?container), ":", STR(?scope)))))
+         as ?eval)
+
+    # Only create if doesn't already exist
+    FILTER NOT EXISTS {
+        ?existing rdf:type :ConditionEvaluation ;
+                 :evaluatesCondition ?condition ;
+                 :evaluatedOn ?container ;
+                 :evaluatedInScope ?scope .
+    }
+}

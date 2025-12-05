@@ -1,0 +1,102 @@
+@prefix pj: <https://openprovenance.org/ns/parajudica#> .
+@prefix sdc: <https://openprovenance.org/ns/facet/sdc#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+#######################################################################
+# Parajudica Structured Data Containers Extension (SDC)
+#######################################################################
+
+#######################################################################
+# Structured Data Container Classes
+#######################################################################
+
+sdc:Database a rdfs:Class ;
+    rdfs:subClassOf pj:DataContainer ;
+    rdfs:comment "Represents a database or similar structured data container." .
+
+sdc:Table a rdfs:Class ;
+    rdfs:subClassOf pj:DataContainer ;
+    rdfs:comment "Represents a structured data table." .
+
+sdc:Record a rdfs:Class ;
+    rdfs:subClassOf pj:DataContainer ;
+    rdfs:comment "Represents a structured data record within a table." .
+
+sdc:Field a rdfs:Class ;
+    rdfs:subClassOf pj:DataContainer ;
+    rdfs:comment "Represents a simple field holding a value." .
+
+#######################################################################
+# Structured Data Containment Properties
+#######################################################################
+sdc:hasTables a rdf:Property ;
+    rdfs:subPropertyOf pj:contains ;
+    rdfs:domain sdc:Database ;
+    rdfs:range sdc:Table ;
+    rdfs:comment "Relates a Database to its Tables." .
+
+sdc:hasRecords a rdf:Property ;
+    rdfs:subPropertyOf pj:contains ;
+    rdfs:domain sdc:Table ;
+    rdfs:range sdc:Record ;
+    rdfs:comment "Relates a Table directly to anonymous Records." .
+
+sdc:hasField a rdf:Property ;
+    rdfs:subPropertyOf pj:contains ;
+    rdfs:domain sdc:Record ;
+    rdfs:range sdc:Field ;
+    rdfs:comment "Relates a Record to its Fields." .
+
+#######################################################################
+# Inverse Containment Properties (for easier querying)
+#######################################################################
+sdc:recordOf a rdf:Property ;
+    rdfs:domain sdc:Record ;
+    rdfs:range sdc:Table ;
+    rdfs:comment "Inverse of hasRecords - relates a Record to its containing Table." .
+
+sdc:fieldOf a rdf:Property ;
+    rdfs:domain sdc:Field ;
+    rdfs:range sdc:Record ;
+    rdfs:comment "Inverse of hasField - relates a Field to its containing Record." .
+
+#######################################################################
+# Field Metadata Properties
+#######################################################################
+sdc:fieldName a rdf:Property ;
+    rdfs:domain sdc:Field ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Defines the field's name." .
+
+sdc:fieldValue a rdf:Property ;
+    rdfs:domain sdc:Field ;
+    rdfs:comment "Defines the field's data value." .
+
+#######################################################################
+# Field-Level Declaration Classes and Properties
+#######################################################################
+sdc:FieldDeclaration a rdfs:Class ;
+    rdfs:comment "Declaration of labels for fields identified by name within structured containers." .
+
+# Field-Level Properties
+sdc:declaresField a rdf:Property ;
+    # Domain intentionally unspecified: applies to sdc:Table or sdc:Record
+    rdfs:range sdc:FieldDeclaration ;
+    rdfs:comment "Declares labels for specific fields within structured containers." .
+
+sdc:forFieldName a rdf:Property ;
+    rdfs:domain sdc:FieldDeclaration ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The name of the field(s) this declaration applies to." .
+
+sdc:hasLabel a rdf:Property ;
+    rdfs:domain sdc:FieldDeclaration ;
+    rdfs:range pj:ComplianceLabel ;
+    rdfs:comment "Label(s) to apply to the specified field(s)." .
+
+sdc:assertedOnField a rdf:Property ;
+    rdfs:domain pj:Assertion ;
+    rdfs:range xsd:string ;
+    rdfs:comment "For field-level assertions on structured data, specifies which field the assertion applies to." .

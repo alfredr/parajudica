@@ -1,0 +1,52 @@
+PREFIX : <https://openprovenance.org/ns/parajudica#>
+PREFIX sdc: <https://openprovenance.org/ns/facet/sdc#>
+PREFIX base: <https://openprovenance.org/ns/facet/base#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# K-anonymity analysis using cached QI signatures
+# Requires qi-signatures.rq CONSTRUCT to be run first
+
+INSERT {
+    ?assertion a :ComplianceAssertion ;
+        :assertsLabel base:KAnonymityAnalysis ;
+        :assertedOn ?table ;
+        :assertedInScope ?scope ;
+        :assertedByFramework base:BaseFramework ;
+        :hasParameterValue [
+            :parameterName "minimumCohortSize" ;
+            :parameterValue ?kValue ;
+            :parameterType xsd:integer
+        ] .
+}
+WHERE {
+    # Find minimum group size using cached signatures
+    {
+        SELECT ?table ?scope (MIN(?count) as ?kValue)
+        WHERE {
+            # Count records per QI signature
+            SELECT ?table ?scope ?sigValue (COUNT(DISTINCT ?record) as ?count)
+            WHERE {
+                ?table sdc:hasRecords ?record .
+                ?record :hasQISignature ?sig .
+                ?sig :inScope ?scope ;
+                     :value ?sigValue .
+            }
+            GROUP BY ?table ?scope ?sigValue
+        }
+        GROUP BY ?table ?scope
+    }
+    
+    # Generate assertion IRI
+    BIND(IRI(CONCAT("urn:kanon:", 
+                    STRAFTER(STR(?table), "#"), "_", 
+                    STRAFTER(STR(?scope), "#"), 
+                    "_analysis")) as ?assertion)
+    
+    # Only create if doesn't exist
+    FILTER NOT EXISTS {
+        ?existing a :ComplianceAssertion ;
+                 :assertsLabel base:KAnonymityAnalysis ;
+                 :assertedOn ?table ;
+                 :assertedInScope ?scope .
+    }
+}

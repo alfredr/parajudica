@@ -1,0 +1,61 @@
+PREFIX : <https://openprovenance.org/ns/parajudica#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# OUTWARD PROPAGATION: From child containers to parent
+# Example: Table with PHI -> Database gets PHI
+# Automatically copies parameter values
+
+CONSTRUCT {
+  ?newAssertion rdf:type :ComplianceAssertion ;
+                :assertedByFramework ?framework ;
+                :assertedInScope ?scope ;
+                :assertedOn ?parent ;
+                :assertsLabel ?label ;
+                :derivedFrom ?childAssertion ;
+                :derivedVia :OutwardPropagation ;
+                :hasParameterValue ?paramValue .
+}
+WHERE {
+  # Child has an assertion
+  ?childAssertion rdf:type :ComplianceAssertion ;
+                  :assertsLabel ?label ;
+                  :assertedInScope ?scope ;
+                  :assertedOn ?child ;
+                  :assertedByFramework ?framework .
+
+  # Framework has outward propagation rule for this label
+  ?framework :hasPropagationRule ?rule .
+  ?rule :propagatesLabel ?label ;
+        :propagationBehavior :Outward .
+
+  # Parent contains child
+  ?parent :contains ?child .
+
+  # Check condition if specified
+  # COMMENTED OUT FOR PERFORMANCE - conditional propagation disabled
+  # OPTIONAL {
+  #   ?rule :hasCondition ?condition .
+  #   ?eval rdf:type :ConditionEvaluation ;
+  #         :evaluatesCondition ?condition ;
+  #         :evaluatedOn ?parent ;
+  #         :evaluatedInScope ?scope ;
+  #         :evaluationResult "true"^^xsd:boolean .
+  # }
+  #
+  # # Propagate if no condition or condition is satisfied
+  # FILTER (!BOUND(?condition) || BOUND(?eval))
+
+  # Create new assertion URI using skolemization pattern
+  BIND(IRI(CONCAT("urn:skolem:",
+                  ENCODE_FOR_URI(STR(?parent)), "_",
+                  ENCODE_FOR_URI(STR(?label)), "_",
+                  ENCODE_FOR_URI(STR(?framework)), "_",
+                  ENCODE_FOR_URI(STR(?scope)), "_assertion")) AS ?newAssertion)
+
+  # Copy parameter values if they exist
+  OPTIONAL { ?childAssertion :hasParameterValue ?paramValue }
+
+  # Check that this assertion doesn't already exist
+  FILTER NOT EXISTS { ?newAssertion rdf:type :ComplianceAssertion }
+}

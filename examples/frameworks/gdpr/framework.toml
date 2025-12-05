@@ -1,0 +1,8 @@
+name = "gdpr"
+type = "privacy"
+version = "1.0.0"
+description = "GDPR compliance framework"
+depends_on = ["base"]
+
+[files]
+model = ["model/gdpr.ttl"]

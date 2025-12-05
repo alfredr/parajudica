@@ -1,0 +1,11 @@
+name = "base"
+type = "privacy"
+version = "1.0.0"
+description = "Base privacy framework with common patterns and transformations"
+
+[files]
+model = ["model/base.ttl"]
+# Cache QI signatures for k-anonymity computation
+constructs = ["constructs/qi-signatures.rq"]
+# K-anonymity using cached signatures
+updates = ["updates/k-anon-cached.rq"]

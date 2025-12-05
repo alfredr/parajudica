@@ -1,0 +1,15 @@
+{
+    "files.exclude": {
+        "**/__pycache__": true,
+        "**/*.pyc": true,
+        "**/*.pyo": true,
+        "**/.pytest_cache": true
+    },
+    "python.languageServer": "None",
+    "python.defaultInterpreterPath": ".venv",
+    "debug.javascript.defaultRuntimeExecutable": {
+        "pwa-node": "/Users/alfred/.local/share/mise/shims/node"
+    },
+    "terminal.external.osxExec": "Ghostty.app",
+    "makefile.configureOnOpen": false
+}

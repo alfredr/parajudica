@@ -1,0 +1,36 @@
+PREFIX : <https://openprovenance.org/ns/parajudica#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+# Pre-extract parameter values for efficient comparison lookups
+# This creates a simple index: container-scope-label-param -> value
+
+CONSTRUCT {
+    ?paramIndex a :ParameterIndex ;
+               :container ?container ;
+               :scope ?scope ;
+               :label ?label ;
+               :parameter ?paramName ;
+               :value ?paramValue .
+}
+WHERE {
+    ?assertion rdf:type :ComplianceAssertion ;
+              :assertedOn ?container ;
+              :assertedInScope ?scope ;
+              :assertsLabel ?label ;
+              :hasParameterValue ?pv .
+
+    ?pv :parameterName ?paramName ;
+        :parameterValue ?paramValue .
+
+    # Create deterministic URI
+    BIND(IRI(CONCAT("urn:pi:",
+                    ENCODE_FOR_URI(STR(?container)), ":",
+                    ENCODE_FOR_URI(STR(?scope)), ":",
+                    ENCODE_FOR_URI(STR(?label)), ":",
+                    ENCODE_FOR_URI(?paramName)))
+         AS ?paramIndex)
+
+    FILTER NOT EXISTS {
+        ?paramIndex a :ParameterIndex .
+    }
+}

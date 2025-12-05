@@ -1,0 +1,46 @@
+PREFIX pj: <https://openprovenance.org/ns/parajudica#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+# Expand pj:toAnyLabel with multiple labels into separate pj:toLabel implications
+# For example: A → (B C D) becomes:
+# - A → B
+# - A → C
+# - A → D
+
+CONSTRUCT {
+    # Create individual implications for each target label
+    ?framework pj:declaresImplication ?expandedImpl .
+    ?expandedImpl a pj:ConditionalImplication ;
+        ?fromPredicate ?fromLabels ;
+        pj:toLabel ?singleToLabel ;
+        pj:hasCondition ?condition ;
+        rdfs:comment ?expandedComment .
+}
+WHERE {
+    # Find implications with toAnyLabel
+    ?framework pj:declaresImplication ?impl .
+    ?impl a pj:ConditionalImplication ;
+          pj:toAnyLabel ?toLabels .
+
+    # Get the from predicate and labels
+    ?impl ?fromPredicate ?fromLabels .
+    FILTER(?fromPredicate IN (pj:fromLabel, pj:fromAnyLabel, pj:fromAllLabels))
+
+    # Get any conditions (optional)
+    OPTIONAL { ?impl pj:hasCondition ?condition }
+
+    # Get comment if exists
+    OPTIONAL { ?impl rdfs:comment ?origComment }
+
+    # Extract individual labels from the list
+    ?toLabels rdf:rest*/rdf:first ?singleToLabel .
+
+    # Create expanded comment
+    BIND(IF(BOUND(?origComment),
+            CONCAT(?origComment, " (expanded to single target)"),
+            "Expanded from multi-target implication") AS ?expandedComment)
+
+    # Create stable IRI for the expanded implication based on original IRI and label
+    BIND(IRI(CONCAT(STR(?impl), "-to-", ENCODE_FOR_URI(STR(?singleToLabel)))) AS ?expandedImpl)
+}

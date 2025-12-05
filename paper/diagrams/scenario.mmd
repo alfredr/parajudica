@@ -1,0 +1,31 @@
+---
+config:
+  layout: dagre
+  theme: neutral
+  themeVariables:
+    primaryColor: "#f5f5f5"
+    primaryTextColor: "#333"
+    primaryBorderColor: "#999"
+    lineColor: "#666"
+    secondaryColor: "#e8e8e8"
+    tertiaryColor: "#fafafa"
+---
+flowchart TB
+    subgraph HR["HRScope"]
+        EDB[("EmployeeDB")]
+        PI["ProvidersInfo<br/><small>names, SSNs,<br/>vaccination dates</small>"]
+        EDB --> PI
+    end
+    subgraph Medical["MedicalScope"]
+        MDB[("MedicalDB")]
+        PT["PatientTreatments<br/><small>diagnoses,<br/>procedures</small>"]
+        MDB --> PT
+    end
+    subgraph Research["ResearchScope"]
+        direction LR
+        PI2["ProvidersInfo"]
+        PT2["PatientTreatments"]
+        PI2 <-.->|joinable| PT2
+    end
+    PI -.-> PI2
+    PT -.-> PT2

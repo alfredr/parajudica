@@ -1,0 +1,723 @@
+@prefix : <https://openprovenance.org/ns/facet/base#> .
+@prefix pj: <https://openprovenance.org/ns/parajudica#> .
+@prefix base: <https://openprovenance.org/ns/facet/base#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+
+:BaseFramework a pj:Framework ;
+    pj:hasFacet :Subject, :Control, :Domain, :Kind, :Identifier, :Statistical ;
+    pj:hasPropagationRule [
+        a pj:PropagationRule ;
+        pj:propagatesFacet :Type ;
+        pj:propagationBehavior pj:Inward
+    ] ;
+    pj:hasPropagationRule [
+        a pj:PropagationRule ;
+        pj:propagatesFacet :Kind ;
+        pj:propagationBehavior pj:Inward
+    ] ;
+    pj:hasPropagationRule [
+        a pj:PropagationRule ;
+        pj:propagatesFacet :Domain ;
+        pj:propagationBehavior pj:Inward
+    ] ;
+    
+    pj:hasPropagationRule [
+        a pj:PropagationRule ;
+        pj:propagatesLabel :Identifiable ;
+        pj:propagationBehavior pj:Joinable
+    ] ;
+    pj:hasPropagationRule [
+        a pj:PropagationRule ;
+        pj:propagatesLabel :Identifiable ;
+        pj:propagationBehavior pj:Peer
+    ] .
+
+
+:Subject a pj:Facet ;
+    pj:hasSubfacet :Type ;
+    rdfs:comment "Facet describing who or what entity the data concerns" .
+
+:Type a pj:Facet ;
+    pj:hasLabel :Individual, :Organization ;
+    rdfs:comment "Types of data subjects" .
+
+:Control a pj:Facet ;
+    rdfs:comment "Facet for data handling and protection requirements" .
+
+:Statistical a pj:Facet ;
+    rdfs:comment "Facet for quantitative analysis and statistical privacy measures" .
+
+:Domain a pj:Facet ;
+    pj:hasLabel :Healthcare, :Financial, :Education, :Government ;
+    rdfs:comment "Facet for operational domains and contexts" .
+
+:Kind a pj:Facet ;
+    rdfs:comment "Facet describing the semantic meaning and type of stored data" ;
+    pj:hasLabel 
+        # Abstract category labels
+        :IdentifierData,  # Parent for all identifier semantic types
+        :OfficialIdentifierData, :LocationData, :PhysicalLocationData,
+        :DigitalResourceIdentifier, :TemporalData, :MomentData, :DurationData,
+        :CommunicationData, :BiometricData,
+        
+        # Concrete data type labels
+        :Name, :EmailAddress, :TelephoneNumber, :FaxNumber,
+        :SocialSecurityNumber, :DriversLicenseNumber, :PassportNumber,
+        :TaxIdentificationNumber, :MedicalRecordNumber, :HealthPlanNumber,
+        :DEANumber, :DateOfBirth, :ZipCode, :Gender, :Race, :Age,
+        :StreetAddress, :City, :State, :Country, :IPAddress, :MACAddress,
+        :URL, :DeviceID, :Timestamp, :AdmissionDate, :DischargeDate,
+        :DateRange, :ServicePeriod, :Fingerprint, :FacialImage,
+        :VoicePrint, :Photograph, :AccountNumber, :CustomerID,
+        :EmployeeID, :VehicleIdentificationNumber, :LicensePlateNumber,
+        
+        # Health-related labels
+        :HealthData,  # Parent for all health-related data
+        :DiagnosisCode, :TreatmentCode,
+        
+        # Identifiability labels
+        :Identifiable .  # Data that can be linked to individuals
+
+:Identifier a pj:Facet ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Facet for how data functions as identifiers - orthogonal to semantic type" ;
+    pj:hasSubfacet :Cardinality, :Knowability ;  # Subfacets for orthogonal properties
+    pj:hasLabel
+        # Identifier categories
+        :Identifier,           # Parent class for all identifier types
+        :DirectIdentifier,     # Directly identifies (was DirectIdentifierData)
+        :IndirectIdentifier,   # Quasi-identifiers (was IndirectIdentifierData)
+        :InternalIdentifier . # Internal processing identifiers - ephemeral, one-time use
+
+
+:Identifier a pj:ComplianceLabel ;
+    pj:belongsToFacet :Identifier ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Parent class for all identifier types in Identifier facet" .
+
+:DirectIdentifier a pj:ComplianceLabel ;
+    pj:belongsToFacet :Identifier ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:subClassOf :Identifier ;
+    rdfs:comment "Directly identifies individuals (e.g., name, SSN)" .
+
+:IndirectIdentifier a pj:ComplianceLabel ;
+    pj:belongsToFacet :Identifier ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:subClassOf :Identifier ;
+    rdfs:comment "Quasi-identifiers that could identify when combined (for k-anonymity)" .
+
+:InternalIdentifier a pj:ComplianceLabel ;
+    pj:belongsToFacet :Identifier ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:subClassOf :Identifier ;
+    rdfs:comment "Internal processing identifier - ephemeral, one-time use identifier" .
+
+# K-Anonymity Analysis - Statistical privacy measure
+:KAnonymityAnalysis a pj:ComplianceLabel ;
+    pj:belongsToFacet :Statistical ;  # Quantitative privacy measure
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:label "K-Anonymity Analysis" ;
+    rdfs:comment "Statistical analysis of minimum cohort size for quasi-identifiers" ;
+    pj:hasParameterDefinition [
+        pj:parameterName "minimumCohortSize" ;
+        pj:parameterType xsd:integer ;
+        pj:parameterDescription "Minimum number of individuals sharing the same quasi-identifiers (k value)"
+    ] .
+
+
+:Cardinality a pj:Facet ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Statistical property describing how many individuals share a value" ;
+    pj:hasLabel
+        :UniqueCardinality,           # Exactly one individual (equiv to ClosedGroupCardinality(1))
+        :ClosedGroupCardinality,      # Fixed group of n individuals
+        :OpenGroupCardinality .       # Scales with population
+
+:Knowability a pj:Facet ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Access property describing where/how a value can be known or linked" ;
+    pj:hasLabel
+        :OpenKnowability,             # Observable/accessible outside our system
+        :ClosedKnowability .          # Only meaningful within specific scope(s)
+
+
+:UniqueCardinality a pj:ComplianceLabel ;
+    pj:belongsToFacet :Cardinality ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Value uniquely identifies one individual (SSN, email, row ID)" .
+
+:ClosedGroupCardinality a pj:ComplianceLabel ;
+    pj:belongsToFacet :Cardinality ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Membership in actual group of n individuals (department, household)" .
+
+:OpenGroupCardinality a pj:ComplianceLabel ;
+    pj:belongsToFacet :Cardinality ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Scales proportionally with population (ZIP code, age group, blood type)" .
+
+
+:OpenKnowability a pj:ComplianceLabel ;
+    pj:belongsToFacet :Knowability ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Observable/accessible outside our system (names, public records, emails)" .
+
+:ClosedKnowability a pj:ComplianceLabel ;
+    pj:belongsToFacet :Knowability ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Only meaningful within specific scope(s) (database IDs, session tokens)" .
+
+
+:IdentifierData a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Abstract parent for all data that can identify entities" .
+
+# DirectIdentifierData and IndirectIdentifierData removed - replaced by functional mappings
+# Semantic types (Name, SSN) now map directly to functional classifications (DirectIdentifier)
+
+:OfficialIdentifierData a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Abstract parent for government-issued identifiers" .
+
+:LocationData a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Abstract parent for all location-related data" .
+
+:PhysicalLocationData a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Abstract parent for physical world addresses" .
+
+:DigitalResourceIdentifier a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Abstract parent for digital resource identifiers and network addresses" .
+
+:TemporalData a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Abstract parent for all time-related data" .
+
+:MomentData a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Abstract parent for specific points in time" .
+
+:DurationData a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Abstract parent for time periods and durations" .
+
+:CommunicationData a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Abstract parent for communication-related data" .
+
+:BiometricData a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Abstract parent for biological/physiological characteristics" .
+
+:InternalUUID a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Internal UUID - unique per record, only meaningful within system" .
+
+
+:Name a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Personal names including first, middle, last names" .
+
+:EmailAddress a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Email addresses" .
+
+:TelephoneNumber a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Phone numbers including mobile and landline" .
+
+:FaxNumber a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Fax numbers" .
+
+# Official Government Identifiers
+:SocialSecurityNumber a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Government-issued SSN" .
+
+:DriversLicenseNumber a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Government-issued driver's license" .
+
+:PassportNumber a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Government-issued passport number" .
+
+:TaxIdentificationNumber a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Tax ID or EIN" .
+
+# Healthcare Identifiers
+:MedicalRecordNumber a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Medical record identifiers" .
+
+:HealthPlanNumber a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Health insurance plan numbers" .
+
+:DEANumber a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Drug Enforcement Administration registration number" .
+
+# Quasi-Identifiers
+:DateOfBirth a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Birth dates" .
+
+:Gender a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework .
+
+:Race a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework .
+
+:Age a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework .
+
+# Physical Location Data
+:StreetAddress a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Street addresses" .
+
+:City a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework .
+
+:State a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework .
+
+:Country a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework .
+
+:ZipCode a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Postal codes" .
+
+# Digital Location Data
+:IPAddress a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "IP addresses" .
+
+:MACAddress a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "MAC addresses" .
+
+:URL a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework .
+
+:DeviceID a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Unique device identifiers" .
+
+# Temporal Data
+:Timestamp a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Specific date/time stamps" .
+
+:AdmissionDate a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "Healthcare admission dates" .
+
+:DischargeDate a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework .
+
+:DateRange a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework .
+
+:ServicePeriod a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework .
+
+# Biometric Data
+:Fingerprint a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework .
+
+:FacialImage a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework .
+
+:VoicePrint a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework .
+
+:Photograph a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "General photographs that may identify individuals" .
+
+# Account and Reference Numbers
+:AccountNumber a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework .
+
+:CustomerID a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework .
+
+:EmployeeID a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework .
+
+:VehicleIdentificationNumber a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:comment "VIN" .
+
+:LicensePlateNumber a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework .
+
+
+:BaseFramework
+    # Note: DirectIdentifierData and IndirectIdentifierData removed
+    # Semantic types now map directly to functional classifications below
+    
+    # All identifier semantic types are still IdentifierData for semantic grouping
+    pj:declaresImplication [
+        pj:fromAnyLabel (:Name :EmailAddress :TelephoneNumber :FaxNumber
+                     :SocialSecurityNumber :DriversLicenseNumber :PassportNumber
+                     :TaxIdentificationNumber :MedicalRecordNumber :HealthPlanNumber
+                     :DEANumber :StreetAddress :MACAddress :DeviceID :AccountNumber
+                     :CustomerID :EmployeeID :VehicleIdentificationNumber
+                     :LicensePlateNumber :Fingerprint :FacialImage :VoicePrint
+                     :DateOfBirth :ZipCode :Gender :Race :Age :City :State
+                     :Country :IPAddress :AdmissionDate :DischargeDate
+                     :ServicePeriod :Photograph) ;
+        pj:toLabel :IdentifierData  # Semantic parent for all identifier types
+    ] ;
+    
+    # Semantic types that function as direct identifiers
+    pj:declaresImplication [
+        pj:fromAnyLabel (:Name :EmailAddress :TelephoneNumber :FaxNumber
+                     :SocialSecurityNumber :DriversLicenseNumber :PassportNumber
+                     :TaxIdentificationNumber :MedicalRecordNumber :HealthPlanNumber
+                     :DEANumber :NationalProviderIdentifier :StreetAddress :MACAddress 
+                     :DeviceID :AccountNumber :CustomerID :EmployeeID 
+                     :VehicleIdentificationNumber :LicensePlateNumber 
+                     :Fingerprint :FacialImage :VoicePrint) ;
+        pj:toLabel :DirectIdentifier  # Maps to functional classification
+    ] ;
+    
+    # Semantic types that function as indirect identifiers (quasi-identifiers)
+    pj:declaresImplication [
+        pj:fromAnyLabel (:DateOfBirth :ZipCode :Gender :Race :Age :MaritalStatus
+                     :City :State :Country :IPAddress :AdmissionDate :DischargeDate
+                     :ServicePeriod :Photograph :Timestamp) ;
+        pj:toLabel :IndirectIdentifier  # Maps to functional classification
+    ] ;
+    
+    # Official identifiers (multi-inheritance with DirectIdentifier)
+    pj:declaresImplication [
+        pj:fromAnyLabel (:SocialSecurityNumber :DriversLicenseNumber :PassportNumber
+                     :TaxIdentificationNumber :DEANumber :VehicleIdentificationNumber
+                     :LicensePlateNumber) ;
+        pj:toLabel :OfficialIdentifierData
+    ] ;
+    
+    # Abstract category hierarchies
+    pj:declaresImplication [
+        pj:fromLabel :OfficialIdentifierData ;
+        pj:toLabel :IdentifierData
+    ] ;
+    
+    # Location data hierarchy (only physical locations)
+    pj:declaresImplication [
+        pj:fromLabel :PhysicalLocationData ;
+        pj:toLabel :LocationData
+    ] ;
+    
+    pj:declaresImplication [
+        pj:fromAnyLabel (:StreetAddress :City :State :Country :ZipCode) ;
+        pj:toLabel :PhysicalLocationData
+    ] ;
+    
+    # Digital resource identifiers (separate from location)
+    pj:declaresImplication [
+        pj:fromAnyLabel (:IPAddress :MACAddress :URL :DeviceID) ;
+        pj:toLabel :DigitalResourceIdentifier
+    ] ;
+    
+    # Digital identifiers are also identifiers
+    pj:declaresImplication [
+        pj:fromLabel :DigitalResourceIdentifier ;
+        pj:toLabel :IdentifierData
+    ] ;
+    
+    # Temporal data hierarchy (already correct)
+    pj:declaresImplication [
+        pj:fromAnyLabel (:MomentData :DurationData) ;
+        pj:toLabel :TemporalData
+    ] ;
+    
+    pj:declaresImplication [
+        pj:fromAnyLabel (:DateOfBirth :Timestamp :AdmissionDate :DischargeDate) ;
+        pj:toLabel :MomentData
+    ] ;
+    
+    pj:declaresImplication [
+        pj:fromAnyLabel (:Age :DateRange :ServicePeriod) ;
+        pj:toLabel :DurationData
+    ] ;
+    
+    # Communication data (also digital resource identifiers)
+    pj:declaresImplication [
+        pj:fromAnyLabel (:EmailAddress :TelephoneNumber :FaxNumber) ;
+        pj:toLabel :CommunicationData
+    ] ;
+    
+    # Email is also a digital resource identifier
+    pj:declaresImplication [
+        pj:fromLabel :EmailAddress ;
+        pj:toLabel :DigitalResourceIdentifier
+    ] ;
+    
+    # Biometric data
+    pj:declaresImplication [
+        pj:fromAnyLabel (:Fingerprint :FacialImage :VoicePrint :Photograph) ;
+        pj:toLabel :BiometricData
+    ] ;
+    
+    # Medical codes are types of identifiers AND health data
+    pj:declaresImplication [
+        pj:fromAnyLabel (:DiagnosisCode :TreatmentCode) ;
+        pj:toLabel :IdentifierData ;
+        rdfs:comment "Medical codes are types of identifiers"
+    ] ;
+    
+    # Medical codes are all types of health data
+    pj:declaresImplication [
+        pj:fromAnyLabel (:DiagnosisCode :TreatmentCode :DrugCode :DosageCode :MedicalRecordNumber :HealthPlanNumber) ;
+        pj:toLabel :HealthData ;
+        rdfs:comment "Medical codes are health-related data"
+    ] .
+
+
+# DirectIdentifier = UniqueCardinality AND OpenKnowability (bidirectional)
+:BaseFramework pj:declaresEquivalent [
+    a pj:ConditionalEquivalence ;
+    pj:fromAllLabels (:UniqueCardinality :OpenKnowability) ;
+    pj:toLabel :DirectIdentifier ;
+    # No condition needed - this is a pure bidirectional equivalence
+    rdfs:comment "DirectIdentifier is equivalent to UniqueCardinality AND OpenKnowability"
+] .
+
+# InternalIdentifier = UniqueCardinality AND ClosedKnowability (bidirectional)
+:BaseFramework pj:declaresEquivalent [
+    a pj:ConditionalEquivalence ;
+    pj:fromAllLabels (:UniqueCardinality :ClosedKnowability) ;
+    pj:toLabel :InternalIdentifier ;
+    # No condition needed - this is a pure bidirectional equivalence
+    rdfs:comment "InternalIdentifier is equivalent to UniqueCardinality AND ClosedKnowability"
+] .
+
+# IndirectIdentifier = OpenGroupCardinality AND OpenKnowability (bidirectional)
+# For quasi-identifiers that could identify when combined
+:BaseFramework pj:declaresEquivalent [
+    a pj:ConditionalEquivalence ;
+    pj:fromAllLabels (:OpenGroupCardinality :OpenKnowability) ;
+    pj:toLabel :IndirectIdentifier ;
+    # No condition needed - this is a pure bidirectional equivalence
+    rdfs:comment "IndirectIdentifier is equivalent to OpenGroupCardinality AND OpenKnowability"
+] .
+
+# InternalUUID implies UniqueCardinality and ClosedKnowability
+:BaseFramework
+    pj:declaresImplication [
+        pj:fromLabel :InternalUUID ;
+        pj:toLabel :UniqueCardinality ;
+        rdfs:comment "Internal UUIDs are always unique"
+    ] ;
+    pj:declaresImplication [
+        pj:fromLabel :InternalUUID ;
+        pj:toLabel :ClosedKnowability ;
+        rdfs:comment "Internal UUIDs are only meaningful within the system"
+    ] ;
+    pj:declaresImplication [
+        pj:fromLabel :InternalUUID ;
+        pj:toLabel :IdentifierData ;
+        rdfs:comment "Internal UUIDs are identifiers"
+    ] .
+
+
+:Healthcare a pj:ComplianceLabel ;
+    pj:belongsToFacet :Domain ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:label "Healthcare" ;
+    rdfs:comment "Healthcare domain indicator" .
+
+:Financial a pj:ComplianceLabel ;
+    pj:belongsToFacet :Domain ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:label "Financial" ;
+    rdfs:comment "Financial domain indicator" .
+
+:Education a pj:ComplianceLabel ;
+    pj:belongsToFacet :Domain ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:label "Education" ;
+    rdfs:comment "Education domain indicator" .
+
+:Government a pj:ComplianceLabel ;
+    pj:belongsToFacet :Domain ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:label "Government" ;
+    rdfs:comment "Government domain indicator" .
+
+
+:Individual a pj:ComplianceLabel ;
+    pj:belongsToFacet :Type ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:label "Individual" ;
+    rdfs:comment "Data concerning an individual person" .
+
+:Organization a pj:ComplianceLabel ;
+    pj:belongsToFacet :Type ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:label "Organization" ;
+    rdfs:comment "Data concerning an organizational entity" .
+
+
+:BaseFramework
+    pj:declaresImplication [
+        pj:fromAnyLabel (:SocialSecurityNumber :DriversLicenseNumber :PassportNumber
+                     :DateOfBirth :Gender :Race :Age
+                     :Fingerprint :FacialImage :VoicePrint
+                     :MedicalRecordNumber :HealthPlanNumber) ;
+        pj:toLabel :Individual ;
+        rdfs:comment "Person-specific identifiers imply Individual subject type"
+    ] .
+
+
+:Identifiable a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:label "Identifiable" ;
+    rdfs:comment "Data that can be linked to specific individuals through direct identifiers or joinable relationships" .
+
+# Rule: Direct identifiers are inherently identifiable
+:BaseFramework pj:declaresImplication [
+    a pj:Implication ;
+    pj:fromLabel :DirectIdentifier ;
+    pj:toLabel :Identifiable ;
+    rdfs:comment "Direct identifiers are always identifiable"
+] .
+
+# Rule: Containers with direct identifiers are identifiable
+:BaseFramework pj:declaresConditional [
+    a pj:ConditionalRule ;
+    pj:toLabel :Identifiable ;
+    pj:hasCondition [
+        a pj:ContainsLabelCondition ;
+        pj:requiresContains :DirectIdentifier
+    ] ;
+    rdfs:comment "Containers that contain direct identifiers are identifiable"
+] .
+
+
+
+:HealthData a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:label "Health Data" ;
+    rdfs:comment "Health-related information (medical codes, diagnoses, treatments) regardless of subject" .
+
+:DiagnosisCode a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:label "Diagnosis Code" ;
+    rdfs:comment "Medical diagnosis codes (ICD-10, etc.)" .
+
+:TreatmentCode a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:label "Treatment Code" ;
+    rdfs:comment "Medical treatment or procedure codes" .
+
+# Additional Medical and Administrative Labels
+:MaritalStatus a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:label "Marital Status" ;
+    rdfs:comment "Marital status indicator (married, single, divorced, etc.)" .
+
+:LabCode a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:label "Laboratory Code" ;
+    rdfs:comment "Laboratory test codes (LOINC, CPT, etc.)" .
+
+:LabResult a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:label "Laboratory Result" ;
+    rdfs:comment "Laboratory test results and values" .
+
+:DrugCode a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:label "Drug Code" ;
+    rdfs:comment "Medication/drug codes (NDC, RxNorm, etc.)" .
+
+:DosageCode a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:label "Dosage Code" ;
+    rdfs:comment "Medication dosage codes" .
+
+:DosageUnits a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:label "Dosage Units" ;
+    rdfs:comment "Medication dosage units (mg, ml, tablets, etc.)" .
+
+:NationalProviderIdentifier a pj:ComplianceLabel ;
+    pj:belongsToFacet :Kind ;
+    pj:introducedByFramework :BaseFramework ;
+    rdfs:label "National Provider Identifier" ;
+    rdfs:comment "NPI number for healthcare providers" .

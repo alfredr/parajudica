@@ -1,0 +1,31 @@
+PREFIX : <https://openprovenance.org/ns/parajudica#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+# Create a fast index for label-in-scope lookups
+# This materializes a simple triple pattern for efficient querying
+# Instead of joining through assertions, queries can directly check:
+# ?container :hasLabelInScope ?ls . ?ls :label ?label ; :scope ?scope .
+
+CONSTRUCT {
+    ?container :hasLabelInScope ?labelScope .
+    ?labelScope a :LabelScope ;
+               :label ?label ;
+               :scope ?scope .
+}
+WHERE {
+    ?assertion rdf:type :ComplianceAssertion ;
+              :assertedOn ?container ;
+              :assertedInScope ?scope ;
+              :assertsLabel ?label .
+
+    # Create deterministic URI for this label-scope combination
+    BIND(IRI(CONCAT("urn:ls:",
+                    ENCODE_FOR_URI(STR(?label)), ":",
+                    ENCODE_FOR_URI(STR(?scope))))
+         AS ?labelScope)
+
+    # Only create if doesn't exist
+    FILTER NOT EXISTS {
+        ?container :hasLabelInScope ?labelScope .
+    }
+}

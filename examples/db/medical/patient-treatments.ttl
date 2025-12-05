@@ -1,0 +1,62 @@
+@prefix : <https://openprovenance.org/ns/facet/sdc#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix pj: <https://openprovenance.org/ns/parajudica#> .
+@prefix base: <https://openprovenance.org/ns/facet/base#> .@prefix app: <https://example.org/medical#> .
+
+app:PatientTreatments a :Table ;
+  pj:hasTag base:Healthcare ;
+  pj:hasTag base:Individual ;
+  :declaresField [
+    :forFieldName "encounterID" ;
+    :hasLabel base:InternalUUID
+  ] ;
+  :declaresField [
+    :forFieldName "treatmentSeqNum" ;
+    :hasLabel base:InternalUUID
+  ] ;
+  :declaresField [
+    :forFieldName "productID" ;
+    :hasLabel base:DrugCode
+  ] ;
+  :declaresField [
+    :forFieldName "doseAmt" ;
+    :hasLabel base:DosageCode
+  ] ;
+  :declaresField [
+    :forFieldName "doseUnit" ;
+    :hasLabel base:DosageUnits
+  ] ;
+  :declaresField [
+    :forFieldName "doseRoute" ;
+    :hasLabel base:TreatmentCode
+  ] ;
+  :hasRecords 
+    [ a :Record ;
+      :hasField [ :fieldName "encounterID"; :fieldValue "57107685-4e64-7631-92c6-62d9957951f1" ],
+                [ :fieldName "treatmentSeqNum"; :fieldValue "1"^^xsd:integer ],
+                [ :fieldName "productID"; :fieldValue "COVID19 Vaccine" ],
+                [ :fieldName "doseAmt"; :fieldValue "0.5"^^xsd:float ],
+                [ :fieldName "doseUnit"; :fieldValue "mL" ],
+                [ :fieldName "doseRoute"; :fieldValue "IM" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "encounterID"; :fieldValue "57107685-4e64-7631-92c6-62d9957951f1" ],
+                [ :fieldName "treatmentSeqNum"; :fieldValue "2"^^xsd:integer ],
+                [ :fieldName "productID"; :fieldValue "Ibuprofen" ],
+                [ :fieldName "doseAmt"; :fieldValue "200.0"^^xsd:float ],
+                [ :fieldName "doseUnit"; :fieldValue "mg" ],
+                [ :fieldName "doseRoute"; :fieldValue "PO" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "encounterID"; :fieldValue "519e8373-5cf4-4c0a-b02e-785d00c1d4b2" ],
+                [ :fieldName "treatmentSeqNum"; :fieldValue "1"^^xsd:integer ],
+                [ :fieldName "productID"; :fieldValue "COVID19 Vaccine" ],
+                [ :fieldName "doseAmt"; :fieldValue "0.5"^^xsd:float ],
+                [ :fieldName "doseUnit"; :fieldValue "mL" ],
+                [ :fieldName "doseRoute"; :fieldValue "IM" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "encounterID"; :fieldValue "a1b2c3d4-e5f6-7890-abcd-ef1234567890" ],
+                [ :fieldName "treatmentSeqNum"; :fieldValue "1"^^xsd:integer ],
+                [ :fieldName "productID"; :fieldValue "COVID19 Vaccine" ],
+                [ :fieldName "doseAmt"; :fieldValue "0.5"^^xsd:float ],
+                [ :fieldName "doseUnit"; :fieldValue "mL" ],
+                [ :fieldName "doseRoute"; :fieldValue "IM" ] ] .

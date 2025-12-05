@@ -1,0 +1,45 @@
+PREFIX : <https://openprovenance.org/ns/parajudica#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# JoinableLabelCondition Evaluation
+#
+# Check if container is joinable to another container that contains the required label
+# This enables identifiability through data linkage
+#
+CONSTRUCT {
+    ?eval rdf:type :ConditionEvaluation ;
+          :evaluatesCondition ?condition ;
+          :evaluatedOn ?container ;
+          :evaluatedInScope ?scope ;
+          :evaluationResult "true"^^xsd:boolean .
+}
+WHERE {
+    # Start with conditions
+    ?condition rdf:type :JoinableLabelCondition ;
+              :requiresJoinableContains ?requiredLabel .
+
+    # Find containers in the same scope
+    ?assertion rdf:type :ComplianceAssertion ;
+              :assertedOn ?container ;
+              :assertedInScope ?scope .
+
+    # Check if this container is joinable to another container
+    ?container :joinable ?otherContainer .
+
+    # Check if the other container contains the required label
+    ?containment rdf:type :ContainmentAssertion ;
+                :assertedOn ?otherContainer ;
+                :assertsContains ?requiredLabel ;
+                :assertedInScope ?scope .
+
+    # Generate deterministic evaluation URI
+    BIND(IRI(CONCAT("urn:eval:joinable:",
+                    MD5(CONCAT(STR(?condition), ":", STR(?container), ":", STR(?scope)))))
+         as ?eval)
+
+    # Check doesn't already exist
+    FILTER NOT EXISTS {
+        ?eval rdf:type :ConditionEvaluation .
+    }
+}

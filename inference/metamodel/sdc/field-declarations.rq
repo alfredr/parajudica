@@ -1,0 +1,48 @@
+PREFIX : <https://openprovenance.org/ns/facet/sdc#>
+PREFIX pj: <https://openprovenance.org/ns/parajudica#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# Field declarations create assertions on the actual field objects
+
+CONSTRUCT {
+    ?fieldAssertion rdf:type pj:ComplianceAssertion ;
+                    pj:assertedOn ?field ;
+                    pj:assertsLabel ?label ;
+                    pj:assertedInScope ?scope ;
+                    pj:assertedByFramework ?framework ;
+                    pj:isExternalFact "true"^^xsd:boolean ;
+                    pj:isGroundAssertion "true"^^xsd:boolean .
+}
+WHERE {
+    # Table has field declaration
+    ?table :declaresField ?fieldDecl .
+    ?fieldDecl :forFieldName ?fieldName ;
+               :hasLabel ?label .
+    
+    # Find actual field with that name
+    ?table :hasRecords ?record .
+    ?record :hasField ?field .
+    ?field :fieldName ?fieldName .
+    
+    # Table must be visible somewhere
+    ?tableAssertion rdf:type pj:ComplianceAssertion ;
+                    pj:assertedOn ?table ;
+                    pj:assertedInScope ?scope .
+    
+    # Label must have an associated framework
+    ?label pj:introducedByFramework ?framework .
+    
+    # Generate deterministic URI
+    BIND(IRI(CONCAT("urn:skolem:",
+                    ENCODE_FOR_URI(STR(?field)), "_",
+                    ENCODE_FOR_URI(STR(?label)), "_",
+                    ENCODE_FOR_URI(STR(?framework)), "_",
+                    ENCODE_FOR_URI(STR(?scope)), "_field-decl"))
+         AS ?fieldAssertion)
+    
+    # Only create if doesn't already exist
+    FILTER NOT EXISTS {
+        ?fieldAssertion rdf:type pj:ComplianceAssertion .
+    }
+}

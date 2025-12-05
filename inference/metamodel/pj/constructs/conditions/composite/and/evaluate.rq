@@ -1,0 +1,44 @@
+PREFIX pj: <https://openprovenance.org/ns/parajudica#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# Fast AND evaluation - check all subconditions are satisfied
+
+CONSTRUCT {
+    ?eval rdf:type pj:ConditionEvaluation ;
+          pj:evaluatesCondition ?andCondition ;
+          pj:evaluatedOn ?container ;
+          pj:evaluatedInScope ?scope ;
+          pj:evaluationResult "true"^^xsd:boolean .
+}
+WHERE {
+    # Concrete anchor: marked AND conditions
+    ?mark rdf:type pj:ConditionMark ;
+          pj:markedCondition ?andCondition ;
+          pj:markedForContainer ?container ;
+          pj:markedInScope ?scope .
+    
+    ?andCondition pj:logicalOperator pj:AND .
+    
+    # Generate eval URI early
+    BIND(IRI(CONCAT("urn:eval:composite-and:",
+                    MD5(CONCAT(STR(?andCondition), ":", STR(?container), ":", STR(?scope)))))
+         AS ?eval)
+    
+    # Skip if already evaluated
+    FILTER NOT EXISTS {
+        ?eval rdf:type pj:ConditionEvaluation .
+    }
+    
+    # Check no missing subconditions (MINUS is faster than nested FILTER NOT EXISTS)
+    MINUS {
+        ?andCondition pj:hasCondition ?sub .
+        MINUS {
+            ?subEval rdf:type pj:ConditionEvaluation ;
+                    pj:evaluatesCondition ?sub ;
+                    pj:evaluatedOn ?container ;
+                    pj:evaluatedInScope ?scope ;
+                    pj:evaluationResult "true"^^xsd:boolean .
+        }
+    }
+}

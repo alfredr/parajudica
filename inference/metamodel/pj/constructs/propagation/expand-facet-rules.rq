@@ -1,0 +1,21 @@
+PREFIX : <https://openprovenance.org/ns/parajudica#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+# Expand facet-based propagation rules into individual label rules
+# This materializes :propagatesLabel for each label in a propagated facet
+
+CONSTRUCT {
+    ?rule :propagatesLabel ?label .
+}
+WHERE {
+    # Find facet-based propagation rules
+    ?rule :propagatesFacet ?facet .
+
+    # Find all labels that belong to this facet
+    ?label :belongsToFacet ?facet .
+
+    # Only create if doesn't already exist
+    FILTER NOT EXISTS {
+        ?rule :propagatesLabel ?label .
+    }
+}

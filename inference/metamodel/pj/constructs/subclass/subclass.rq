@@ -1,0 +1,44 @@
+# Process subclass declarations
+# Optimized: Start from subclass declarations with expanded labels
+
+PREFIX : <https://openprovenance.org/ns/parajudica#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+    ?DerivedAssertion rdf:type :ComplianceAssertion ;
+                     :assertsLabel ?ParentLabel ;
+                     :assertedByFramework ?Framework ;
+                     :assertedInScope ?Scope ;
+                     :assertedOn ?Container ;
+                     :derivedVia :SubclassRelationship ;
+                     :assertedOnField ?Field .
+}
+WHERE {
+    # Start from subclass declarations with fromLabel (either original or expanded from fromAnyLabel)
+    ?Framework :declaresSubclassOf ?SubclassDecl .
+    ?SubclassDecl :fromLabel ?ChildLabel ;
+                  :isSubclassOf ?ParentLabel .
+
+    # Find assertions that match the child label
+    ?A rdf:type :ComplianceAssertion ;
+       :assertsLabel ?ChildLabel ;
+       :assertedInScope ?Scope ;
+       :assertedOn ?Container .
+
+    # Optional field information
+    OPTIONAL { ?A :assertedOnField ?Field }
+
+    # Create deterministic URI
+    BIND(IRI(CONCAT("urn:skolem:",
+                    ENCODE_FOR_URI(STR(?Container)), "_",
+                    ENCODE_FOR_URI(STR(?ParentLabel)), "_",
+                    ENCODE_FOR_URI(STR(?Framework)), "_",
+                    ENCODE_FOR_URI(STR(?Scope)), "_",
+                    "assertion")) AS ?DerivedAssertion)
+
+    # Check doesn't exist using deterministic URI
+    FILTER NOT EXISTS {
+        ?DerivedAssertion rdf:type :ComplianceAssertion .
+    }
+}

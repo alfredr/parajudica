@@ -1,0 +1,86 @@
+@prefix : <https://openprovenance.org/ns/facet/ema#> .
+@prefix pj: <https://openprovenance.org/ns/parajudica#> .
+@prefix base: <https://openprovenance.org/ns/facet/base#> .
+@prefix gdpr: <https://openprovenance.org/ns/facet/gdpr#> .
+@prefix ema: <https://openprovenance.org/ns/facet/ema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+###############################################################################
+# European Medicines Agency (EMA) Framework
+# 
+# Implements EMA's interpretation of GDPR for clinical data publication
+# Based on Policy 0070 and External Guidance on anonymization
+#
+# Primary approach: Conservative k-anonymity threshold (k=12) for public release
+# of clinical trial data to achieve adequate anonymization
+###############################################################################
+
+:EMAFramework a pj:Framework ;
+    pj:extends gdpr:GDPRFramework ;
+    rdfs:label "EMA Framework" ;
+    rdfs:comment "European Medicines Agency interpretation of GDPR for clinical data publication per Policy 0070 - extends GDPR with k=12 threshold" .
+
+###############################################################################
+# EMA-Specific Approach to Anonymization
+###############################################################################
+# EMA applies a risk-based approach with conservative thresholds:
+# - Accepts k-anonymity as a valid anonymization technique
+# - Requires k ≥ 12 for public data release (re-identification probability < 0.09)
+# - More conservative than typical HIPAA Expert Determination (k ≥ 3-5)
+# - Less strict than Italian DPA (which rejects any singling out)
+
+###############################################################################
+# EMA Rules
+###############################################################################
+# Note: EMAFramework builds on GDPR framework and uses GDPR labels
+# EMA provides specific interpretation of when data has high reidentification risk
+
+# Core Rule: k < 12 indicates high reidentification risk
+:EMAFramework pj:declaresImplication [
+    a pj:ConditionalImplication ;
+    pj:fromLabel base:KAnonymityAnalysis ;
+    pj:toLabel gdpr:HighReidentificationRisk ;
+    pj:hasCondition [
+        a pj:ComparisonCondition ;
+        pj:leftSource [
+            pj:sourceType pj:LabelParameter ;
+            pj:sourceLabel base:KAnonymityAnalysis ;
+            pj:sourceParameter "minimumCohortSize"
+        ] ;
+        pj:rightSource [
+            pj:sourceType pj:LabelParameter ;
+            pj:sourceLabel :PseudonymizationThreshold ;
+            pj:sourceParameter "kThreshold" ;
+            pj:defaultValue 12  # EMA's conservative threshold
+        ] ;
+        pj:comparisonOperator pj:lessThan
+    ] ;
+    rdfs:comment "EMA: k < 12 indicates high reidentification risk per Policy 0070 guidance"
+] .
+
+# Define the configuration label for threshold
+:PseudonymizationThreshold a pj:Label ;
+    pj:belongsToFacet base:Configuration ;
+    rdfs:label "EMA Pseudonymization Threshold" ;
+    rdfs:comment "Configurable k-anonymity threshold for EMA clinical data publication (default: 12)" .
+
+###############################################################################
+# Insights from EMA Position
+#
+# 1. RISK-BASED APPROACH: EMA focuses on statistical reidentification risk
+#    Accept k-anonymity as valid technique with conservative threshold
+#
+# 2. CONSERVATIVE THRESHOLD: k=12 is higher than common practice
+#    Reflects caution for public release of clinical trial data
+#
+# 3. PRACTICAL IMPLEMENTATION: Unlike Italian DPA, EMA accepts that
+#    perfect anonymization may be impossible but requires high standards
+#
+# Example scenario:
+# - Dataset with k=8 quasi-identifiers
+# - EMA: High reidentification risk (k < 12) → Personal data
+# - HIPAA: Acceptable under Expert Determination (k > 3)
+# - Italian DPA: Would evaluate based on presence of unique identifiers
+###############################################################################

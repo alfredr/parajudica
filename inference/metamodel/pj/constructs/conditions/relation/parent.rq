@@ -1,0 +1,46 @@
+PREFIX pj: <https://openprovenance.org/ns/parajudica#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# RelationLabelCondition Evaluation - Parent Relations Only
+# Check if a container's parent has required labels
+
+CONSTRUCT {
+    ?eval rdf:type pj:ConditionEvaluation ;
+          pj:evaluatesCondition ?condition ;
+          pj:evaluatedOn ?container ;
+          pj:evaluatedInScope ?scope ;
+          pj:evaluationResult "true"^^xsd:boolean .
+}
+WHERE {
+    # Start from parent conditions that exist
+    ?condition rdf:type pj:RelationLabelCondition ;
+               pj:onRelation pj:Parent ;
+               pj:requiresLabel ?requiredLabel .
+
+    # Find implications using this condition
+    ?impl pj:hasCondition ?condition ;
+          pj:fromLabel ?fromLabel .
+
+    # Find containers with fromLabel in specific scopes (using index)
+    ?container pj:hasLabelInScope ?labelScope .
+    ?labelScope pj:label ?fromLabel ;
+               pj:scope ?scope .
+
+    # Check if container's parent has the required label
+    ?parent pj:contains ?container .
+    ?parentAssertion rdf:type pj:ComplianceAssertion ;
+                     pj:assertedOn ?parent ;
+                     pj:assertedInScope ?scope ;
+                     pj:assertsLabel ?requiredLabel .
+
+    # Create deterministic evaluation URI
+    BIND(IRI(CONCAT("urn:eval:relation:",
+                    MD5(CONCAT(STR(?condition), ":", STR(?container), ":", STR(?scope)))))
+         AS ?eval)
+
+    # Only create if not already exists (check the specific URI)
+    FILTER NOT EXISTS {
+        ?eval rdf:type pj:ConditionEvaluation .
+    }
+}

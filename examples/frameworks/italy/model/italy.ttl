@@ -1,0 +1,85 @@
+@prefix : <https://openprovenance.org/ns/facet/italy#> .
+@prefix pj: <https://openprovenance.org/ns/parajudica#> .
+@prefix base: <https://openprovenance.org/ns/facet/base#> .
+@prefix gdpr: <https://openprovenance.org/ns/facet/gdpr#> .
+@prefix italy: <https://openprovenance.org/ns/facet/italy#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+###############################################################################
+# Italian Data Protection Authority (Garante) Framework
+# 
+# Implements the Italian DPA's strict interpretation of GDPR Article 4(1)
+# where any unique identifier makes data personal, regardless of whether
+# it's externally knowable or only meaningful internally.
+#
+# Primary approach: UniqueCardinality alone is sufficient for PersonalData,
+# ignoring the Knowability dimension that standard GDPR considers.
+###############################################################################
+
+:ItalianDPAFramework a pj:Framework ;
+    pj:extends gdpr:GDPRFramework ;
+    rdfs:label "Italian DPA Framework" ;
+    rdfs:comment "Italian Data Protection Authority's strict interpretation of GDPR Article 4(1) - extends GDPR with stricter rules" .
+
+###############################################################################
+# Italian DPA Specific Approach
+###############################################################################
+# Note: ItalianDPAFramework uses the GDPR :PersonalData label
+# but applies it with stricter criteria than standard GDPR.
+# The label is introduced by GDPR framework, not Italian DPA.
+# 
+# Italy's main difference: Cardinality alone is sufficient for PersonalData
+# (they ignore Knowability - even closed/internal identifiers count)
+
+###############################################################################
+# Italian DPA Rules
+###############################################################################
+
+# Core Rule: Unique identifiers on individuals are always personal data
+# Italy: UniqueCardinality alone is sufficient (ignores Knowability)
+
+# Italy's containment-based rule: tables containing unique identifiers are personal data
+:ItalianDPAFramework pj:declaresImplication [
+    a pj:ConditionalImplication ;
+    pj:fromLabel base:Individual ;
+    pj:toLabel gdpr:PersonalData ;
+    pj:hasCondition [
+        a pj:ContainsLabelCondition ;
+        pj:requiresContains base:UniqueCardinality
+    ] ;
+    rdfs:comment "Italian DPA: Individual data containing unique values is personal data"
+] .
+
+# Also keep the field-level rule for completeness
+:ItalianDPAFramework pj:declaresImplication [
+    a pj:ConditionalImplication ;
+    pj:fromLabel base:UniqueCardinality ;
+    pj:toLabel gdpr:PersonalData ;
+    pj:hasCondition [
+        a pj:RelationLabelCondition ;
+        pj:onRelation pj:Self ;
+        pj:requiresLabel base:Individual
+    ] ;
+    rdfs:comment "Italian DPA: Unique values on individuals are sufficient for PersonalData classification"
+] .
+
+# Italy inherits k-anonymity rules from GDPR (k < 3 threshold)
+# The main difference is Italy's stricter UniqueCardinality rule above
+# which makes ANY unique identifier sufficient for PersonalData classification
+
+###############################################################################
+# Insights from Italian DPA Position
+#
+# 1. CARDINALITY FOCUS: Italy focuses on cardinality (uniqueness) alone
+#    They don't care about Knowability - internal IDs count the same as external
+#
+# 2. STRICT INTERPRETATION: This represents one of the strictest
+#    interpretations of personal data in the EU
+#
+# Example scenario:
+# - Dataset with temporary UUID for processing (UniqueCardinality + ClosedKnowability)
+# - Italian DPA: Personal data because UniqueCardinality alone is sufficient
+# - Standard GDPR: Not personal data (needs OpenKnowability for re-identification risk)
+###############################################################################

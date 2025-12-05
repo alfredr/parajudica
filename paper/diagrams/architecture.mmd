@@ -1,0 +1,46 @@
+---
+config:
+  layout: dagre
+  theme: neutral
+  themeVariables:
+    primaryColor: "#f5f5f5"
+    primaryTextColor: "#333"
+    primaryBorderColor: "#999"
+    lineColor: "#666"
+    secondaryColor: "#e8e8e8"
+    tertiaryColor: "#fafafa"
+---
+flowchart LR
+    subgraph Inputs["Inputs"]
+        direction TB
+        FW["Frameworks<br/><small>models, rules,<br/>constructs, updates</small>"]
+        DATA["Environment<br/><small>TTL data files</small>"]
+        QRY["Queries<br/><small>SPARQL SELECT</small>"]
+    end
+
+    subgraph Bootstrap["Bootstrap"]
+        COMPILE["Compile<br/><small>Jena → SPARQL</small>"]
+    end
+
+    subgraph Process["Process"]
+        LOAD["Load"]
+        SKOLEM["Skolemize"]
+        STORE[("Oxigraph<br/>Store")]
+        ITER["Iterate<br/><small>CONSTRUCT</small>"]
+    end
+
+    subgraph Output["Output"]
+        SELECT["Query<br/><small>SELECT</small>"]
+        RESULTS["Results"]
+    end
+
+    FW --> COMPILE
+    FW --> LOAD
+    DATA --> LOAD
+    COMPILE --> ITER
+    LOAD --> SKOLEM
+    SKOLEM --> STORE
+    STORE <--> ITER
+    STORE -- saturated --> SELECT
+    QRY --> SELECT
+    SELECT --> RESULTS

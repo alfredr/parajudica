@@ -1,0 +1,8 @@
+name = "italy"
+type = "privacy"
+version = "1.0.0"
+description = "Italy-specific GDPR extensions"
+depends_on = ["gdpr"]
+
+[files]
+model = ["model/italy.ttl"]

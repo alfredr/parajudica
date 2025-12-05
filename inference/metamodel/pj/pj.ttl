@@ -1,0 +1,783 @@
+@prefix : <https://openprovenance.org/ns/parajudica#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+#######################################################################
+# Core Classes
+#######################################################################
+
+:DataContainer
+    a rdfs:Class ;
+    rdfs:comment "Hierarchical data container." .
+
+:GovernanceScope
+    a rdfs:Class ;
+    rdfs:comment "Operational context that defines the boundaries of data governance." .
+
+:ComplianceLabel
+    a rdfs:Class ;
+    rdfs:comment "Regulatory or compliance label." .
+
+:Facet
+    a rdfs:Class ;
+    rdfs:comment "Category of compliance labels." .
+
+:Framework
+    a rdfs:Class ;
+    rdfs:comment "Governance or regulatory framework." .
+
+#######################################################################
+# Assertion Classes
+#######################################################################
+
+:Assertion
+    a rdfs:Class ;
+    rdfs:comment "Abstract parent class for all compliance-related assertions." .
+
+:ComplianceAssertion
+    a rdfs:Class ;
+    rdfs:subClassOf :Assertion ;
+    rdfs:comment "Assertion of what data IS from a compliance perspective." .
+
+:ContainmentAssertion
+    a rdfs:Class ;
+    rdfs:subClassOf :Assertion ;
+    rdfs:comment "Assertion of what a container CONTAINS from a compliance perspective." .
+
+:PropagationDirection
+    a rdfs:Class ;
+    rdfs:comment "Enumeration of possible propagation directions." .
+
+#######################################################################
+# Declaration Classes
+#######################################################################
+
+:Declaration
+    a rdfs:Class ;
+    rdfs:comment "Abstract base class for all declaration types that map labels to other labels" .
+
+:SubclassDeclaration
+    a rdfs:Class ;
+    rdfs:subClassOf :Declaration ;
+    rdfs:comment "Declaration that labels are subclasses of another label" .
+
+:EquivalenceDeclaration  
+    a rdfs:Class ;
+    rdfs:subClassOf :Declaration ;
+    rdfs:comment "Declaration that labels are equivalent within a framework's context" .
+
+:ConditionalDeclaration
+    a rdfs:Class ;
+    rdfs:subClassOf :Declaration ;
+    rdfs:comment "Abstract base class for conditional declarations that apply under specific conditions" .
+
+:ConditionalEquivalence
+    a rdfs:Class ;
+    rdfs:subClassOf :ConditionalDeclaration ;
+    rdfs:comment "Equivalence that applies only when specific conditions are met" .
+
+#######################################################################
+# Rule Classes
+#######################################################################
+
+:Rule
+    a rdfs:Class ;
+    rdfs:comment "Abstract base class for all rule types" .
+
+:PropagationRule
+    a rdfs:Class ;
+    rdfs:subClassOf :Rule ;
+    rdfs:comment "Rule specifying propagation of facets across data containers." .
+
+#######################################################################
+# Core Object Properties
+#######################################################################
+
+:contains
+    a rdf:Property ;
+    rdfs:domain :DataContainer ;
+    rdfs:range :DataContainer ;
+    rdfs:comment "Relationship indicating that one data container includes another." .
+
+:containedBy
+    a rdf:Property ;
+    rdfs:domain :DataContainer ;
+    rdfs:range :DataContainer ;
+    rdfs:comment "Inverse of the contains relation." .
+
+:joinableWith
+    a rdf:Property ;
+    rdfs:domain :DataContainer ;
+    rdfs:range :DataContainer ;
+    rdfs:comment "Indicates data containers that may be joined." .
+
+:belongsToFacet
+    a rdf:Property ;
+    rdfs:domain :ComplianceLabel ;
+    rdfs:range :Facet ;
+    rdfs:comment "Associates a compliance label with its facet." .
+
+:hasFacet
+    a rdf:Property ;
+    rdfs:domain :Framework ;
+    rdfs:range :Facet ;
+    rdfs:comment "Links a framework to its facets." .
+
+:hasSubfacet
+    a rdf:Property ;
+    rdfs:domain :Facet ;
+    rdfs:range :Facet ;
+    rdfs:comment "Links a parent facet to its subfacets." .
+
+:introducedByFramework
+    a rdf:Property ;
+    # Domain: Facet or ComplianceLabel
+    rdfs:range :Framework ;
+    rdfs:comment "Indicates which framework introduced a facet or label." .
+
+:extends
+    a rdf:Property ;
+    rdfs:domain :Framework ;
+    rdfs:range :Framework ;
+    rdfs:comment "Framework extends another, inheriting its rules operating on parent's taxonomy." .
+
+:overrides
+    a rdf:Property ;
+    rdfs:domain :Framework ;
+    # Range is Declaration or Rule
+    rdfs:comment "Indicates that a framework overrides a specific declaration from its parent framework." .
+
+#######################################################################
+# Relationship Declaration Properties
+#######################################################################
+
+:fromLabels
+    a rdf:Property ;
+    rdfs:domain :Declaration ;
+    rdfs:range rdf:List ;
+    rdfs:comment "List of labels that are subclasses or equivalent" .
+
+:toLabels
+    a rdf:Property ;
+    rdfs:domain :Declaration ;
+    rdfs:range rdf:List ;
+    rdfs:comment "List of labels created when conditions are satisfied (for set equivalence)" .
+
+:isSubclassOf
+    a rdf:Property ;
+    rdfs:domain :SubclassDeclaration ;
+    rdfs:range :ComplianceLabel ;
+    rdfs:comment "The parent label in a subclass relationship" .
+
+# Properties for expanded mappings
+:childLabel
+    a rdf:Property ;
+    rdfs:range :ComplianceLabel ;
+    rdfs:comment "Child label in a subclass mapping" .
+
+:parentLabel
+    a rdf:Property ;
+    rdfs:range :ComplianceLabel ;
+    rdfs:comment "Parent label in a subclass mapping" .
+
+#######################################################################
+# Enhanced Relationship Properties
+#######################################################################
+
+:declaresSubclassOf
+    a rdf:Property ;
+    rdfs:domain :Framework ;
+    rdfs:range :SubclassDeclaration ;
+    rdfs:comment "Links a framework to its subclass declarations" .
+
+:declaresEquivalent
+    a rdf:Property ;
+    rdfs:domain :Framework ;
+    rdfs:range :EquivalenceDeclaration ;
+    rdfs:comment "Links a framework to its equivalence declarations" .
+
+:toLabel
+    a rdf:Property ;
+    rdfs:domain :EquivalenceDeclaration ;
+    rdfs:range :ComplianceLabel ;
+    rdfs:comment "Target label in an equivalence relationship" .
+
+#######################################################################
+# Conditional Declaration Properties
+#######################################################################
+
+:onRelation
+    a rdf:Property ;
+    rdfs:domain :ConditionalDeclaration ;
+    rdfs:comment "Where to check condition: Self, Parent, Peer, Child" .
+
+#######################################################################
+# Unified Condition System
+#######################################################################
+# NOTE: All condition system classes and properties have been moved to
+# inference/metamodel/inference.ttl for better separation of concerns.
+
+#######################################################################
+# Propagation Properties
+#######################################################################
+
+:hasPropagationRule
+    a rdf:Property ;
+    rdfs:domain :Framework ;
+    rdfs:range :PropagationRule ;
+    rdfs:comment "Connects a framework to its propagation rules." .
+
+:propagatesLabel
+    a rdf:Property ;
+    rdfs:domain :PropagationRule ;
+    rdfs:range :ComplianceLabel ;
+    rdfs:comment "Specifies which label a propagation rule applies to." .
+
+:propagatesFacet
+    a rdf:Property ;
+    rdfs:domain :PropagationRule ;
+    rdfs:range :Facet ;
+    rdfs:comment "Specifies which facet a propagation rule applies to." .
+
+:propagationBehavior
+    a rdf:Property ;
+    rdfs:domain :PropagationRule ;
+    rdfs:range :PropagationDirection ;
+    rdfs:comment "Specifies the direction of propagation in a rule." .
+
+
+#######################################################################
+# Assertion Properties
+#######################################################################
+
+:assertedByFramework
+    a rdf:Property ;
+    rdfs:domain :Assertion ;
+    rdfs:range :Framework ;
+    rdfs:comment "Indicates the framework that asserts a compliance label." .
+
+:assertedInScope
+    a rdf:Property ;
+    rdfs:domain :Assertion ;
+    rdfs:range :GovernanceScope ;
+    rdfs:comment "Specifies the governance scope of an assertion." .
+
+:assertedOn
+    a rdf:Property ;
+    rdfs:domain :Assertion ;
+    rdfs:range :DataContainer ;
+    rdfs:comment "Specifies the data container evaluated in an assertion." .
+
+:assertsLabel
+    a rdf:Property ;
+    rdfs:domain :Assertion ;
+    rdfs:range :ComplianceLabel ;
+    rdfs:comment "Specifies the compliance label asserted." .
+
+:derivedFrom
+    a rdf:Property ;
+    rdfs:domain :Assertion ;
+    rdfs:range :Assertion ;
+    rdfs:comment "Links a derived assertion to its source assertion" .
+
+:derivedVia
+    a rdf:Property ;
+    rdfs:domain :Assertion ;
+    # Range is intentionally open - can be various derivation types
+    rdfs:comment "Indicates the type of relationship used for derivation (e.g., SubclassRelationship, ConditionalEquivalence)" .
+
+#######################################################################
+# Derivation Types
+#######################################################################
+
+:ContainmentRelationship a rdfs:Resource ;
+    rdfs:comment "Derivation based on container-contains relationship" .
+
+:ContainmentPropagation a rdfs:Resource ;
+    rdfs:comment "Derivation from containment propagation upward" .
+
+#######################################################################
+# Framework Instances
+#######################################################################
+
+:ExternalFramework
+    a :Framework ;
+    rdfs:label "External Framework" ;
+    rdfs:comment "Special framework for externally-provided facts (tags, imports, manual annotations)" .
+
+#######################################################################
+# Propagation Directions
+#######################################################################
+
+:Inward a :PropagationDirection ;
+    rdfs:comment "Propagation from a container to its contents." .
+
+:Outward a :PropagationDirection ;
+    rdfs:comment "Propagation from a contained entity to its container." .
+
+:Peer a :PropagationDirection ;
+    rdfs:comment "Propagation among sibling containers." .
+
+:Joinable a :PropagationDirection ;
+    rdfs:comment "Propagation among containers that can be joined." .
+
+#######################################################################
+# Relation Types for Conditional Checks
+#######################################################################
+
+:Self a rdfs:Resource ;
+    rdfs:comment "Check condition on the same container" .
+
+:Parent a rdfs:Resource ;
+    rdfs:comment "Check condition on parent container" .
+
+:Child a rdfs:Resource ;
+    rdfs:comment "Check condition on child containers" .
+
+:Peer a rdfs:Resource ;
+    rdfs:comment "Check condition on peer containers" .
+
+# NOTE: Condition counting support moved to inference/metamodel/inference.ttl
+
+#######################################################################
+# Release Operation Classes and Properties
+#######################################################################
+
+:ReleaseOperation
+    a rdfs:Class ;
+    rdfs:comment "Operation that makes data available from one governance scope to another" .
+
+:releasesData
+    a rdf:Property ;
+    rdfs:domain :ReleaseOperation ;
+    rdfs:range :DataContainer ;
+    rdfs:comment "Specifies which data containers are released" .
+
+:fromScope
+    a rdf:Property ;
+    rdfs:domain :ReleaseOperation ;
+    rdfs:range :GovernanceScope ;
+    rdfs:comment "Source governance scope" .
+
+:toScope
+    a rdf:Property ;
+    rdfs:domain :ReleaseOperation ;
+    rdfs:range :GovernanceScope ;
+    rdfs:comment "Target governance scope" .
+
+:isGroundAssertion
+    a rdf:Property ;
+    rdfs:domain :Assertion ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Marks assertions as ground truth that flow across scopes" .
+
+:hasTag
+    a rdf:Property ;
+    rdfs:domain :DataContainer ;
+    rdfs:range :ComplianceLabel ;
+    rdfs:comment "Intrinsic labels describing what data IS - materialize as assertions wherever container is visible" .
+
+:availableInScope
+    a rdf:Property ;
+    rdfs:domain :DataContainer ;
+    rdfs:range :GovernanceScope ;
+    rdfs:comment "Indicates that a data container is available/visible within a governance scope" .
+
+:isExternalFact
+    a rdf:Property ;
+    rdfs:domain :Assertion ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Marks assertions that came from external sources (tags, imports)" .
+
+#######################################################################
+# Parameterized Label Ontology Extensions
+#######################################################################
+
+#######################################################################
+# Core Parameterized Classes
+#######################################################################
+
+# REMOVED: ParameterizedComplianceLabel and ParameterizedAssertion
+# These classes have been unified with their parent classes.
+# Parameters are now optional properties of any ComplianceLabel or ComplianceAssertion.
+
+:ParameterElement
+    a rdfs:Class ;
+    rdfs:comment "Abstract base class for parameter-related elements" .
+
+:ParameterDefinition
+    a rdfs:Class ;
+    rdfs:subClassOf :ParameterElement ;
+    rdfs:label "Parameter Definition" ;
+    rdfs:comment "Definition of a parameter including its type and constraints" .
+
+:ParameterValue
+    a rdfs:Class ;
+    rdfs:subClassOf :ParameterElement ;
+    rdfs:label "Parameter Value" ;
+    rdfs:comment "A typed parameter value attached to a parameterized assertion" .
+
+#######################################################################
+# Parameter Definition Properties
+#######################################################################
+
+:hasParameterDefinition
+    a rdf:Property ;
+    rdfs:domain :ComplianceLabel ;  # Any label can declare parameters
+    rdfs:range :ParameterDefinition ;
+    rdfs:label "has parameter definition" ;
+    rdfs:comment "Declares official parameters that are part of this label's compliance semantics" .
+
+:parameterName
+    a rdf:Property ;
+    rdfs:domain :ParameterElement ;
+    rdfs:range xsd:string ;
+    rdfs:label "parameter name" ;
+    rdfs:comment "The name of the parameter" .
+
+:parameterType
+    a rdf:Property ;
+    rdfs:domain :ParameterElement ;
+    rdfs:label "parameter type" ;
+    rdfs:comment "The XSD datatype of the parameter" .
+
+:parameterMinValue
+    a rdf:Property ;
+    rdfs:domain :ParameterDefinition ;
+    rdfs:label "parameter minimum value" ;
+    rdfs:comment "Minimum allowed value for the parameter" .
+
+:parameterMaxValue
+    a rdf:Property ;
+    rdfs:domain :ParameterDefinition ;
+    rdfs:label "parameter maximum value" ;
+    rdfs:comment "Maximum allowed value for the parameter" .
+
+:parameterRequired
+    a rdf:Property ;
+    rdfs:domain :ParameterDefinition ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "parameter required" ;
+    rdfs:comment "Whether this parameter is required or optional" .
+
+:parameterDescription
+    a rdf:Property ;
+    rdfs:domain :ParameterDefinition ;
+    rdfs:range xsd:string ;
+    rdfs:label "parameter description" ;
+    rdfs:comment "Human-readable description of the parameter" .
+
+#######################################################################
+# Parameter Value Properties
+#######################################################################
+
+:hasParameterValue
+    a rdf:Property ;
+    rdfs:domain :ComplianceAssertion ;  # Any assertion can have parameters
+    rdfs:range :ParameterValue ;
+    rdfs:label "has parameter value" ;
+    rdfs:comment "Parameter values for this assertion, corresponding to parameters declared by the label" .
+
+:parameterValue
+    a rdf:Property ;
+    rdfs:domain :ParameterValue ;
+    rdfs:label "parameter value" ;
+    rdfs:comment "The actual value of the parameter" .
+
+
+#######################################################################
+# Comparison Operators (for conditional tag placement)
+#######################################################################
+
+:ComparisonOperator
+    a rdfs:Class ;
+    rdfs:label "Comparison Operator" ;
+    rdfs:comment "Operators for comparing values in conditions" .
+
+:lessThan
+    a :ComparisonOperator ;
+    rdfs:label "less than" ;
+    rdfs:comment "Left value < right value" .
+
+:lessThanOrEqual
+    a :ComparisonOperator ;
+    rdfs:label "less than or equal" ;
+    rdfs:comment "Left value <= right value" .
+
+:greaterThan
+    a :ComparisonOperator ;
+    rdfs:label "greater than" ;
+    rdfs:comment "Left value > right value" .
+
+:greaterThanOrEqual
+    a :ComparisonOperator ;
+    rdfs:label "greater than or equal" ;
+    rdfs:comment "Left value >= right value" .
+
+:equals
+    a :ComparisonOperator ;
+    rdfs:label "equals" ;
+    rdfs:comment "Left value = right value" .
+
+:notEquals
+    a :ComparisonOperator ;
+    rdfs:label "not equals" ;
+    rdfs:comment "Left value != right value" .
+
+:inRange
+    a :ComparisonOperator ;
+    rdfs:label "in range" ;
+    rdfs:comment "Min value <= value <= max value" .
+
+#######################################################################
+# INFERENCE SYSTEM EXTENSIONS FOR Parajudica
+#######################################################################
+# This file contains classes and properties specific to the inference
+# and condition evaluation system. These extend the core Parajudica metamodel
+# to support conditional logic and rule evaluation.
+#######################################################################
+
+#######################################################################
+# Condition Classes
+#######################################################################
+
+:Condition a rdfs:Class ;
+    rdfs:comment "A condition that must be evaluated for conditional declarations" .
+
+:ConditionEvaluation a rdfs:Class ;
+    rdfs:comment "Tracks the evaluation result of a condition for a specific container and scope" .
+
+:ConditionSatisfaction a rdfs:Class ;
+    rdfs:comment "Marks that a condition has been satisfied for a specific container and scope" .
+
+:ConditionMark a rdfs:Class ;
+    rdfs:comment "Marks a condition that needs to be evaluated for a specific container and scope" .
+
+#######################################################################
+# Specific Condition Type Classes
+#######################################################################
+
+:HasLabelCondition rdfs:subClassOf :Condition ;
+    rdfs:comment "Condition that checks if container has a specific label" .
+
+:ContainsLabelCondition rdfs:subClassOf :Condition ;
+    rdfs:comment "Condition that checks if container contains something with a specific label" .
+
+:RelationLabelCondition rdfs:subClassOf :Condition ;
+    rdfs:comment "Condition that checks if a related container has a specific label" .
+
+:CompositeCondition rdfs:subClassOf :Condition ;
+    rdfs:comment "Condition that combines other conditions with logical operators" .
+
+#######################################################################
+# Condition Type Enumerations
+#######################################################################
+
+:HasLabel a rdfs:Resource ;
+    rdfs:comment "Check if container has a compliance label" .
+
+:ContainsLabel a rdfs:Resource ;
+    rdfs:comment "Check if container has a containment assertion for a label" .
+
+:RelationLabel a rdfs:Resource ;
+    rdfs:comment "Check if related container has a label" .
+
+#######################################################################
+# Logical Operators
+#######################################################################
+
+:AND a rdfs:Resource ;
+    rdfs:comment "All sub-conditions must be true" .
+
+:OR a rdfs:Resource ;
+    rdfs:comment "At least one sub-condition must be true" .
+
+#######################################################################
+# Unified Condition Properties
+#######################################################################
+
+:hasCondition a rdf:Property ;
+    rdfs:range :Condition ;
+    rdfs:comment "Links to a condition that must be satisfied. Used by ConditionalDeclaration for its root condition and CompositeCondition for sub-conditions" .
+
+:conditionType a rdf:Property ;
+    rdfs:domain :Condition ;
+    rdfs:comment "Type of condition: HasLabel, ContainsLabel, RelationLabel" .
+
+#######################################################################
+# Properties for CompositeCondition
+#######################################################################
+
+:logicalOperator a rdf:Property ;
+    rdfs:domain :CompositeCondition ;
+    rdfs:comment "Logical operator for composite conditions: AND, OR" .
+
+#######################################################################
+# Properties for HasLabelCondition
+#######################################################################
+
+:requiresLabel a rdf:Property ;
+    rdfs:domain :HasLabelCondition ;
+    rdfs:range :ComplianceLabel ;
+    rdfs:comment "The label that must be present" .
+
+#######################################################################
+# Properties for ContainsLabelCondition
+#######################################################################
+
+:requiresContains a rdf:Property ;
+    rdfs:domain :ContainsLabelCondition ;
+    rdfs:range :ComplianceLabel ;
+    rdfs:comment "The label that must be contained" .
+
+#######################################################################
+# Properties for RelationLabelCondition
+#######################################################################
+
+:onRelation a rdf:Property ;
+    rdfs:domain :RelationLabelCondition ;
+    rdfs:comment "Where to check: Self, Parent, Child, Peer" .
+
+# Note: RelationLabelCondition also uses :requiresLabel
+
+#######################################################################
+# Evaluation Tracking Properties
+#######################################################################
+
+:evaluatesCondition a rdf:Property ;
+    rdfs:domain :ConditionEvaluation ;
+    rdfs:range :Condition ;
+    rdfs:comment "The condition being evaluated" .
+
+:evaluatedOn a rdf:Property ;
+    rdfs:domain :ConditionEvaluation ;
+    rdfs:range :DataContainer ;
+    rdfs:comment "The container context for evaluation" .
+
+:evaluatedInScope a rdf:Property ;
+    rdfs:domain :ConditionEvaluation ;
+    rdfs:range :GovernanceScope ;
+    rdfs:comment "The scope context for evaluation" .
+
+:evaluationResult a rdf:Property ;
+    rdfs:domain :ConditionEvaluation ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "The result of evaluating the condition" .
+
+# ConditionMark properties
+:markedCondition a rdf:Property ;
+    rdfs:domain :ConditionMark ;
+    rdfs:range :Condition ;
+    rdfs:comment "The condition that needs to be evaluated" .
+    
+:markedForContainer a rdf:Property ;
+    rdfs:domain :ConditionMark ;
+    rdfs:range :DataContainer ;
+    rdfs:comment "The container for which the condition should be evaluated" .
+    
+:markedInScope a rdf:Property ;
+    rdfs:domain :ConditionMark ;
+    rdfs:range :GovernanceScope ;
+    rdfs:comment "The scope in which the condition should be evaluated" .
+    
+:markedFromImplication a rdf:Property ;
+    rdfs:domain :ConditionMark ;
+    rdfs:comment "The implication that triggered this mark" .
+    
+:markedFromComposite a rdf:Property ;
+    rdfs:domain :ConditionMark ;
+    rdfs:range :CompositeCondition ;
+    rdfs:comment "The composite condition that propagated this mark" .
+
+#######################################################################
+# Condition Satisfaction Properties
+#######################################################################
+
+:forCondition a rdf:Property ;
+    rdfs:range :Condition ;
+    rdfs:comment "The condition that has been satisfied (used by both ConditionSatisfaction and ConditionCountAssertion)" .
+
+:onContainer a rdf:Property ;
+    rdfs:range :DataContainer ;
+    rdfs:comment "The container for which the condition is satisfied or counted" .
+
+:inScope a rdf:Property ;
+    rdfs:range :GovernanceScope ;
+    rdfs:comment "The scope in which the condition is satisfied or counted" .
+
+#######################################################################
+# Comparison Condition Classes and Properties
+#######################################################################
+# Generic comparison system for evaluating value comparisons
+#######################################################################
+
+:ComparisonCondition rdfs:subClassOf :Condition ;
+    rdfs:comment "Generic comparison between two value sources" .
+
+:ValueSource a rdfs:Class ;
+    rdfs:comment "Source of a value for comparison" .
+
+#######################################################################
+# Properties for ComparisonCondition
+#######################################################################
+
+:leftSource a rdf:Property ;
+    rdfs:domain :ComparisonCondition ;
+    rdfs:range :ValueSource ;
+    rdfs:comment "Left-hand side value source for comparison" .
+
+:rightSource a rdf:Property ;
+    rdfs:domain :ComparisonCondition ;
+    rdfs:range :ValueSource ;
+    rdfs:comment "Right-hand side value source for comparison" .
+
+:comparisonOperator a rdf:Property ;
+    rdfs:domain :ComparisonCondition ;
+    rdfs:comment "Comparison operator: lessThan, greaterThan, equals, etc." .
+
+#######################################################################
+# Properties for ValueSource
+#######################################################################
+
+:sourceType a rdf:Property ;
+    rdfs:domain :ValueSource ;
+    rdfs:comment "Type of value source: Literal or LabelParameter" .
+
+:sourceLabel a rdf:Property ;
+    rdfs:domain :ValueSource ;
+    rdfs:range :ComplianceLabel ;
+    rdfs:comment "Label to extract parameter from (for LabelParameter type)" .
+
+:sourceParameter a rdf:Property ;
+    rdfs:domain :ValueSource ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Parameter name to extract (for LabelParameter type)" .
+
+:literalValue a rdf:Property ;
+    rdfs:domain :ValueSource ;
+    rdfs:comment "Literal value (for Literal type)" .
+
+:defaultValue a rdf:Property ;
+    rdfs:domain :ValueSource ;
+    rdfs:comment "Default value if this source cannot be resolved" .
+
+#######################################################################
+# Comparison Operators
+#######################################################################
+# NOTE: All comparison operators are defined in pj.ttl as instances
+# of :ComparisonOperator class. Available operators:
+#   - :lessThan, :lessThanOrEqual
+#   - :greaterThan, :greaterThanOrEqual  
+#   - :equals, :notEquals
+#   - :inRange
+
+#######################################################################
+# Value Source Types
+#######################################################################
+
+:Literal a rdfs:Resource ;
+    rdfs:comment "Literal value source type" .
+
+:LabelParameter a rdfs:Resource ;
+    rdfs:comment "Label parameter value source type" .

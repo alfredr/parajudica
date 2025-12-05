@@ -1,0 +1,37 @@
+@prefix : <https://openprovenance.org/ns/parajudica#>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix sdc: <https://openprovenance.org/ns/facet/sdc#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+
+#######################################################################
+#                        SDC MAPPING RULES                           #
+#######################################################################
+# These rules map SDC (Semantic Data Catalog) properties to Parajudica
+# internal properties for compatibility.
+
+# Map sdc:hasTables to :contains
+[SDCHasTables:
+  (?X sdc:hasTables ?Y)
+  noValue(?X :contains ?Y)
+  ->
+  (?X :contains ?Y)
+]
+
+# Map sdc:hasRecords to :contains and create inverse
+[SDCHasRecords:
+  (?X sdc:hasRecords ?Y)
+  noValue(?X :contains ?Y)
+  ->
+  (?X :contains ?Y)
+  (?Y sdc:recordOf ?X)
+]
+
+# Map sdc:hasField to :contains, set field type, and create inverse
+[SDCHasField:
+  (?X sdc:hasField ?Y)
+  noValue(?X :contains ?Y)
+  ->
+  (?X :contains ?Y)
+  (?Y rdf:type sdc:Field)
+  (?Y sdc:fieldOf ?X)
+]

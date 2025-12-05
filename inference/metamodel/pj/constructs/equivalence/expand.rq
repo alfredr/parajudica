@@ -1,0 +1,72 @@
+PREFIX pj: <https://openprovenance.org/ns/parajudica#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Expand pj:declaresEquivalent into bidirectional pj:declaresImplication rules
+# Each equivalence A ↔ B becomes:
+# 1. A → B (forward implication)
+# 2. B → A (reverse implication)
+
+CONSTRUCT {
+    # Forward implication: from → to
+    ?framework pj:declaresImplication ?forwardImpl .
+    ?forwardImpl a pj:ConditionalImplication ;
+        ?fromPredicate ?fromLabels ;
+        ?toPredicate ?toLabels ;
+        pj:hasCondition ?condition ;
+        rdfs:comment ?forwardComment .
+
+    # Reverse implication: to → from
+    ?framework pj:declaresImplication ?reverseImpl .
+    ?reverseImpl a pj:ConditionalImplication ;
+        ?reversedFromPredicate ?toLabels ;
+        ?reversedToPredicate ?fromLabels ;
+        pj:hasCondition ?condition ;
+        rdfs:comment ?reverseComment .
+}
+WHERE {
+    # Find all equivalence declarations
+    ?framework pj:declaresEquivalent ?equiv .
+    ?equiv a pj:ConditionalEquivalence .
+
+    # Get the from predicate and labels
+    ?equiv ?fromPredicate ?fromLabels .
+    FILTER(?fromPredicate IN (pj:fromLabel, pj:fromAnyLabel, pj:fromAllLabels))
+
+    # Get the to predicate and labels
+    ?equiv ?toPredicate ?toLabels .
+    FILTER(?toPredicate IN (pj:toLabel, pj:toAnyLabel, pj:toAllLabels))
+
+    # Get any conditions (optional)
+    OPTIONAL { ?equiv pj:hasCondition ?condition }
+
+    # Get comment if exists
+    OPTIONAL { ?equiv rdfs:comment ?origComment }
+
+    # Create appropriate reversed predicates
+    BIND(
+        IF(?toPredicate = pj:toLabel, pj:fromLabel,
+        IF(?toPredicate = pj:toAnyLabel, pj:fromAnyLabel,
+        IF(?toPredicate = pj:toAllLabels, pj:fromAllLabels,
+        pj:fromLabel))) AS ?reversedFromPredicate
+    )
+
+    BIND(
+        IF(?fromPredicate = pj:fromLabel, pj:toLabel,
+        IF(?fromPredicate = pj:fromAnyLabel, pj:toAnyLabel,
+        IF(?fromPredicate = pj:fromAllLabels, pj:toAllLabels,
+        pj:toLabel))) AS ?reversedToPredicate
+    )
+
+    # Create comments for the implications
+    BIND(IF(BOUND(?origComment),
+            CONCAT(?origComment, " (forward implication)"),
+            "Forward implication from equivalence") AS ?forwardComment)
+
+    BIND(IF(BOUND(?origComment),
+            CONCAT(?origComment, " (reverse implication)"),
+            "Reverse implication from equivalence") AS ?reverseComment)
+
+    # Create stable IRIs for the implications based on the equivalence IRI
+    BIND(IRI(CONCAT(STR(?equiv), "-forward")) AS ?forwardImpl)
+    BIND(IRI(CONCAT(STR(?equiv), "-reverse")) AS ?reverseImpl)
+}

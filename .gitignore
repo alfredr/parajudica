@@ -1,0 +1,42 @@
+paper-examples/bin/target/**
+paper-examples/target/
+**node_modules/**
+
+
+# LaTeX/TeXLive temporary files
+*.aux
+*.bbl
+*.blg
+*.dvi
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.pdf
+*.sta
+*.synctex.gz
+*.xcp
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+*.egg-info/
+*.egg
+dist/
+build/
+.mypy_cache/
+.coverage
+htmlcov/
+.tox/
+.ruff_cache/
+
+# OS files
+.DS_Store
+*.bak
+
+# Other
+*.swp
+*~
+.ty_cache/

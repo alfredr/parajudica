@@ -1,0 +1,62 @@
+PREFIX : <https://openprovenance.org/ns/parajudica#>
+PREFIX base: <https://openprovenance.org/ns/facet/base#>
+PREFIX hipaa: <https://openprovenance.org/ns/facet/hipaa#>
+PREFIX gdpr: <https://openprovenance.org/ns/facet/gdpr#>
+PREFIX ema: <https://openprovenance.org/ns/facet/ema#>
+PREFIX italy: <https://openprovenance.org/ns/facet/italy#>
+PREFIX app: <https://example.org/medical#>
+
+# Challenge 5: Reproduce Paper's Table 1 - Framework Divergence
+# Shows how different frameworks classify data with k-anonymity and internal UUID
+# 
+# Expected results for AggregatedHealth (k=3 with internal UUID):
+# - HIPAA: ✓ (k >= 3)
+# - GDPR (EMA): ✗ (k < 12) 
+# - GDPR (Italian): ✗ (has UUID allowing singling out)
+
+SELECT ?table ?kValue ?hipaa ?ema ?italy
+WHERE {
+  VALUES ?table { app:PatientInfo app:AggregatedHealth app:AggregatedHealth12 }
+  
+  # Get k-anonymity value for each table in ResearchScope only
+  ?kAssertion a :ComplianceAssertion ;
+    :assertedOn ?table ;
+    :assertedInScope app:ResearchScope ;
+    :assertsLabel base:KAnonymityAnalysis ;
+    :hasParameterValue ?kParam .
+  ?kParam :parameterName "minimumCohortSize" ;
+          :parameterValue ?kValue .
+  
+  # Check HIPAA Expert Determination (k >= 3 acceptable)
+  OPTIONAL {
+    ?hipaaRisk a :ComplianceAssertion ;
+      :assertedOn ?table ;
+      :assertedInScope app:ResearchScope ;
+      :assertsLabel hipaa:HighReidentificationRisk ;
+      :assertedByFramework hipaa:HIPAAExpertDeterminationFramework .
+  }
+  BIND(IF(BOUND(?hipaaRisk), "NO", "YES") AS ?hipaa)
+  
+  # Check EMA (k >= 12 acceptable)
+  OPTIONAL {
+    ?emaRisk a :ComplianceAssertion ;
+      :assertedOn ?table ;
+      :assertedInScope app:ResearchScope ;
+      :assertsLabel gdpr:HighReidentificationRisk ;
+      :assertedByFramework ema:EMAFramework .
+  }
+  BIND(IF(BOUND(?emaRisk), "NO", "YES") AS ?ema)
+  
+  # Check Italy (rejects any UniqueCardinality including InternalUUID)
+  OPTIONAL {
+    # Check if Italy classified as PersonalData (due to InternalUUID/UniqueCardinality)
+    ?italyPersonal a :ComplianceAssertion ;
+      :assertedOn ?table ;
+      :assertedInScope app:ResearchScope ;
+      :assertsLabel gdpr:PersonalData ;
+      :assertedByFramework italy:ItalianDPAFramework .
+  }
+  # Italy accepts data only if NOT PersonalData
+  BIND(IF(BOUND(?italyPersonal), "NO", "YES") AS ?italy)
+}
+ORDER BY DESC(?kValue)

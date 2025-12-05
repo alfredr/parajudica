@@ -1,0 +1,41 @@
+PREFIX pj: <https://openprovenance.org/ns/parajudica#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# CompositeCondition Evaluation - OR operator
+# Checks marked OR conditions for any satisfied subcondition
+
+CONSTRUCT {
+    ?eval rdf:type pj:ConditionEvaluation ;
+          pj:evaluatesCondition ?orCondition ;
+          pj:evaluatedOn ?container ;
+          pj:evaluatedInScope ?scope ;
+          pj:evaluationResult "true"^^xsd:boolean .
+}
+WHERE {
+    # Find marked OR conditions
+    ?mark rdf:type pj:ConditionMark ;
+          pj:markedCondition ?orCondition ;
+          pj:markedForContainer ?container ;
+          pj:markedInScope ?scope .
+    
+    ?orCondition pj:logicalOperator pj:OR ;
+                pj:hasCondition ?subCondition .
+
+    # Find where at least one subcondition is satisfied
+    ?subEval rdf:type pj:ConditionEvaluation ;
+            pj:evaluatesCondition ?subCondition ;
+            pj:evaluatedOn ?container ;
+            pj:evaluatedInScope ?scope ;
+            pj:evaluationResult "true"^^xsd:boolean .
+
+    # Generate stable evaluation URI
+    BIND(IRI(CONCAT("urn:eval:composite-or:",
+                    MD5(CONCAT(STR(?orCondition), ":", STR(?container), ":", STR(?scope)))))
+         AS ?eval)
+
+    # Only create if doesn't already exist
+    FILTER NOT EXISTS {
+        ?eval rdf:type pj:ConditionEvaluation .
+    }
+}

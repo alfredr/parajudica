@@ -1,0 +1,269 @@
+@prefix : <https://openprovenance.org/ns/facet/gdpr#> .
+@prefix pj: <https://openprovenance.org/ns/parajudica#> .
+@prefix base: <https://openprovenance.org/ns/facet/base#> .
+@prefix gdpr: <https://openprovenance.org/ns/facet/gdpr#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+
+:GDPRFramework a pj:Framework ;
+    pj:hasFacet base:Control ;
+    rdfs:comment "GDPR compliance framework implementing EU data protection requirements" ;
+    
+    pj:hasPropagationRule [
+        pj:propagatesLabel :PersonalData ;
+        pj:propagationBehavior pj:Inward ;
+        rdfs:comment "Personal data status flows to all contained fields per 'any information' principle"
+    ] ;
+    
+    pj:hasPropagationRule [
+        pj:propagatesLabel :SpecialCategoryData ;
+        pj:propagationBehavior pj:Inward ;
+        rdfs:comment "Special category status only propagates to contained fields for precise labeling"
+    ] ;
+    
+    pj:hasPropagationRule [
+        pj:propagatesLabel :HealthData ;
+        pj:propagationBehavior pj:Inward ;
+        rdfs:comment "Health data only propagates inward - no automatic join propagation"
+    ] .
+    
+
+
+:PersonalData a pj:ComplianceLabel ;
+    pj:belongsToFacet base:Control ;
+    pj:introducedByFramework :GDPRFramework ;
+    rdfs:label "Personal Data" ;
+    rdfs:comment "GDPR Article 4(1): Any information relating to an identified or identifiable natural person" .
+
+:SpecialCategoryData a pj:ComplianceLabel ;
+    pj:belongsToFacet base:Control ;
+    pj:introducedByFramework :GDPRFramework ;
+    rdfs:label "Special Category Personal Data" ;
+    rdfs:comment "GDPR Article 9: Data requiring special protection including racial/ethnic origin, political opinions, religious beliefs, trade union membership, genetic data, biometric data, health data, sex life or sexual orientation" .
+
+:DataConcerningHealth a pj:ComplianceLabel ;
+    pj:belongsToFacet base:Control ;
+    pj:introducedByFramework :GDPRFramework ;
+    rdfs:label "Data Concerning Health" ;
+    rdfs:comment "GDPR Article 4(15): Personal data related to physical or mental health including healthcare services that reveal health status" .
+
+:HighReidentificationRisk a pj:ComplianceLabel ;
+    pj:belongsToFacet base:Control ;
+    pj:introducedByFramework :GDPRFramework ;
+    rdfs:label "High Reidentification Risk" ;
+    rdfs:comment "Data with insufficient anonymization that poses high risk of reidentification" .
+
+###############################################################################
+# Conditional Equivalence Rules
+# These implement GDPR's context-sensitive data classification
+###############################################################################
+
+# Rule: High reidentification risk data about individuals → Personal Data
+# Legal Basis: Data that can be reidentified relates to identifiable persons
+:GDPRFramework pj:declaresImplication [
+    a pj:ConditionalImplication ;
+    pj:fromLabel :HighReidentificationRisk ;
+    pj:toLabel :PersonalData ;
+    pj:hasCondition [
+        a pj:RelationLabelCondition ;
+        pj:onRelation pj:Parent ;
+        pj:requiresLabel base:Individual
+    ] ;
+    rdfs:comment "High reidentification risk data about individuals is personal data"
+] .
+
+# Rule: Data about individuals that CONTAINS identifiers → Personal Data
+# Legal Basis: Article 4(1) - "any information relating to an identified or identifiable natural person"
+# Design Decision: PersonalData requires BOTH:
+#   1. Data is about individuals (:Individual label)
+#   2. Data CONTAINS identifiers (via ContainmentAssertion)
+# This allows de-identified data to remain :Individual but lose :PersonalData status
+:GDPRFramework pj:declaresImplication [
+    a pj:ConditionalImplication ;
+    pj:fromLabel base:Individual ;
+    pj:toLabel :PersonalData ;
+    pj:hasCondition [
+        a pj:ContainsLabelCondition ;
+        pj:requiresContains base:IdentifierData
+    ] ;
+    rdfs:comment "Data about individuals that CONTAINS identifiers IS personal data"
+] .
+
+# Rule: Direct Identifiers → Personal Data  
+# Legal Basis: GDPR Article 4(1) - direct identifiers enable identification
+# Design Decision: Use functional DirectIdentifier from orthogonal properties
+# This triggers for both:
+# - Semantic types (Name, SSN) that map to DirectIdentifier
+# - Orthogonal properties (UniqueCardinality + OpenKnowability)
+:GDPRFramework pj:declaresImplication [
+    a pj:ConditionalImplication ;
+    pj:fromLabel base:Individual ;
+    pj:toLabel :PersonalData ;
+    pj:hasCondition [
+        a pj:ContainsLabelCondition ;
+        pj:requiresContains base:DirectIdentifier  # Functional classification
+    ] ;
+    rdfs:comment "Data about individuals containing direct identifiers is personal data"
+] .
+
+# Keep backward compatible rule for semantic IdentifierData
+# This covers legacy cases and semantic type reasoning
+:GDPRFramework pj:declaresImplication [
+    a pj:ConditionalImplication ;
+    pj:fromLabel base:IdentifierData ;  # Semantic category
+    pj:toLabel :PersonalData ;
+    pj:hasCondition [
+        a pj:RelationLabelCondition ;
+        pj:onRelation pj:Parent ;
+        pj:requiresLabel base:Individual
+    ] ;
+    rdfs:comment "Any identifier within datasets about individuals is personal data"
+] .
+
+# Rule: Individual data joinable to identifiers → Personal Data
+# Legal Basis: GDPR Article 4(1) - "identifiable" includes indirect identification
+# Design Decision: Data about individuals becomes personal data when joinable to identifiers
+# This captures real-world identifiability through data linkage
+:GDPRFramework pj:declaresImplication [
+    a pj:ConditionalImplication ;
+    pj:fromLabel base:Individual ;
+    pj:toLabel :PersonalData ;
+    pj:hasCondition [
+        a pj:JoinableLabelCondition ;
+        pj:requiresJoinableContains base:IdentifierData
+    ] ;
+    rdfs:comment "Data about individuals joinable to identifiers is personal data"
+] .
+
+# Rule: Biometric Data → Special Category Data
+# Legal Basis: Article 9(1) explicitly lists "biometric data for uniquely identifying"
+# Design Decision: Biometric data is ALWAYS special category when about individuals,
+# regardless of purpose or context
+:GDPRFramework pj:declaresImplication [
+    a pj:ConditionalImplication ;
+    pj:fromAnyLabel (base:BiometricData base:Fingerprint base:FacialImage base:VoicePrint) ;
+    pj:toLabel :SpecialCategoryData ;
+    pj:hasCondition [
+        a pj:RelationLabelCondition ;
+        pj:onRelation pj:Self ;
+        pj:requiresLabel base:Individual
+    ] ;
+    rdfs:comment "Biometric data used for identification is always special category"
+] .
+
+# Rule: Health data becomes special category when identifiable AND about individuals
+# Legal Basis: Article 4(15) - "data related to physical or mental health of a natural person"
+# Design Decision: base:HealthData (semantic) becomes gdpr:DataConcerningHealth (regulatory) when identifiable + individual
+:GDPRFramework pj:declaresImplication [
+    a pj:ConditionalImplication ;
+    pj:fromLabel base:HealthData ;
+    pj:toLabel :DataConcerningHealth ;
+    pj:hasCondition [
+        a pj:CompositeCondition ;
+        pj:logicalOperator pj:AND ;
+        pj:hasCondition [
+            a pj:RelationLabelCondition ;
+            pj:onRelation pj:Parent ;
+            pj:requiresLabel base:Identifiable
+        ] ;
+        pj:hasCondition [
+            a pj:RelationLabelCondition ;
+            pj:onRelation pj:Parent ;
+            pj:requiresLabel base:Individual
+        ]
+    ] ;
+    rdfs:comment "Health data about identifiable individuals is special category data concerning health"
+] .
+
+# Rule: Healthcare containers that are identifiable and about individuals become DataConcerningHealth
+# Legal Basis: Article 4(15) - healthcare data about identifiable natural persons
+:GDPRFramework pj:declaresImplication [
+    a pj:ConditionalImplication ;
+    pj:fromLabel base:Healthcare ;
+    pj:toLabel :DataConcerningHealth ;
+    pj:hasCondition [
+        a pj:CompositeCondition ;
+        pj:logicalOperator pj:AND ;
+        pj:hasCondition [
+            a pj:RelationLabelCondition ;
+            pj:onRelation pj:Self ;
+            pj:requiresLabel base:Identifiable
+        ] ;
+        pj:hasCondition [
+            a pj:RelationLabelCondition ;
+            pj:onRelation pj:Self ;
+            pj:requiresLabel base:Individual
+        ]
+    ] ;
+    rdfs:comment "Healthcare data about identifiable individuals is data concerning health"
+] .
+
+# Rule: Medical Records become Data Concerning Health
+# Legal Basis: Medical record numbers reveal that someone received healthcare
+# Design Decision: More restrictive than diagnosis codes - these always indicate
+# healthcare receipt when about individuals
+:GDPRFramework pj:declaresImplication [
+    a pj:ConditionalImplication ;
+    pj:fromAnyLabel (base:MedicalRecordNumber base:HealthPlanNumber) ;
+    pj:toLabel :DataConcerningHealth ;
+    pj:hasCondition [
+        a pj:RelationLabelCondition ;
+        pj:onRelation pj:Self ;
+        pj:requiresLabel base:Individual
+    ] ;
+    rdfs:comment "Medical identifiers reveal healthcare service provision"
+] .
+
+###############################################################################
+# Subclass Hierarchy
+# Implements GDPR's legal hierarchy of data categories
+###############################################################################
+
+# Data Concerning Health is a type of Special Category Data
+# Legal Basis: Article 9(1) lists "data concerning health" as special category
+:GDPRFramework pj:declaresSubclassOf [
+    pj:fromLabel :DataConcerningHealth ;
+    pj:isSubclassOf :SpecialCategoryData ;
+    rdfs:comment "Data concerning health is one type of special category data per Article 9"
+] .
+
+# Special Category Data is a type of Personal Data
+# Legal Basis: Special categories are subsets of personal data requiring extra protection
+:GDPRFramework pj:declaresSubclassOf [
+    pj:fromLabel :SpecialCategoryData ;
+    pj:isSubclassOf :PersonalData ;
+    rdfs:comment "All special category data is personal data with additional protections"
+] .
+
+# Personal Data implies it's about individuals
+# Legal Basis: GDPR Article 4(1) defines personal data as relating to natural persons
+:GDPRFramework pj:declaresSubclassOf [
+    pj:fromLabel :PersonalData ;
+    pj:isSubclassOf base:Individual ;
+    rdfs:comment "Personal data by definition relates to individuals"
+] .
+
+###############################################################################
+# Notable Absences and Design Decisions
+#
+# 1. NO Joinable Propagation for Health Data
+#    Unlike HIPAA, joining tables doesn't make all data health-related.
+#    This implements GDPR's purpose limitation and data minimization.
+#
+# 2. NO Peer Propagation 
+#    Sibling tables don't automatically share compliance status.
+#    Each table is evaluated based on its own content and purpose.
+#
+# 3. NO Outward Propagation
+#    Avoids over-labeling containers when only specific fields are sensitive.
+#    Implements GDPR's proportionality and data minimization principles.
+#
+# 4. Context-Heavy Rules
+#    Most equivalences are conditional, reflecting GDPR's emphasis
+#    on purpose and context over technical data types.
+#
+# 5. NO Cross-Framework Interpretation
+#    GDPR operates independently, classifying data based on its own
+#    criteria rather than interpreting other frameworks' labels.
+###############################################################################

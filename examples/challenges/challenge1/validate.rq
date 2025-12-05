@@ -1,0 +1,26 @@
+PREFIX : <https://openprovenance.org/ns/parajudica#>
+PREFIX base: <https://openprovenance.org/ns/facet/base#>
+PREFIX hipaa: <https://openprovenance.org/ns/facet/hipaa#>
+PREFIX app: <https://example.org/medical#>
+
+# Challenge 1: Context-Dependent Classification
+# Display how ProvidersInfo has different compliance status in different scopes
+
+SELECT ?scope ?container ?framework ?label
+WHERE {
+  VALUES ?container { app:ProvidersInfo }
+  
+  ?assertion a :ComplianceAssertion ;
+    :assertedOn ?container ;
+    :assertsLabel ?label ;
+    :assertedInScope ?scope ;
+    :assertedByFramework ?framework .
+    
+  # Focus on key labels
+  FILTER(?label IN (
+    hipaa:ProtectedHealthInformation,
+    base:Individual,
+    base:Organization
+  ))
+}
+ORDER BY ?scope ?framework ?label

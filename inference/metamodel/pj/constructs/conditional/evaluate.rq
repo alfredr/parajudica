@@ -1,0 +1,44 @@
+PREFIX pj: <https://openprovenance.org/ns/parajudica#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# Evaluate conditional rules (rules with only conditions, no fromLabel)
+# These apply toLabel when condition is true, regardless of existing labels
+
+CONSTRUCT {
+    ?newAssertion a pj:ComplianceAssertion ;
+                  pj:assertedOn ?container ;
+                  pj:assertedInScope ?scope ;
+                  pj:assertsLabel ?toLabel ;
+                  pj:assertedByFramework ?framework ;
+                  pj:derivedVia pj:ConditionalRule .
+}
+WHERE {
+    # Find conditional rules without fromLabel
+    ?framework pj:declaresConditional ?rule .
+    ?rule a pj:ConditionalRule ;
+          pj:toLabel ?toLabel ;
+          pj:hasCondition ?condition .
+    
+    # Find containers in scopes (anchor to real structure)
+    ?container pj:availableInScope ?scope .
+    
+    # Check if condition is evaluated as true for this container/scope
+    ?eval a pj:ConditionEvaluation ;
+          pj:evaluatesCondition ?condition ;
+          pj:evaluatedOn ?container ;
+          pj:evaluatedInScope ?scope ;
+          pj:evaluationResult "true"^^xsd:boolean .
+    
+    # Create deterministic assertion ID
+    BIND(IRI(CONCAT("urn:skolem:",
+                    ENCODE_FOR_URI(STR(?container)), "_",
+                    ENCODE_FOR_URI(STR(?toLabel)), "_",
+                    ENCODE_FOR_URI(STR(?framework)), "_",
+                    ENCODE_FOR_URI(STR(?scope)), "_assertion")) AS ?newAssertion)
+    
+    # Check target doesn't exist using the deterministic ID
+    FILTER NOT EXISTS {
+        ?newAssertion a pj:ComplianceAssertion .
+    }
+}

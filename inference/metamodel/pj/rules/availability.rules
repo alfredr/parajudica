@@ -1,0 +1,33 @@
+@prefix : <https://openprovenance.org/ns/parajudica#>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix sdc: <https://openprovenance.org/ns/facet/sdc#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+
+
+[PropagateAvailableInScope:
+  (?Parent :availableInScope ?Scope)
+  (?Parent :contains ?Child)
+  noValue(?Child :availableInScope ?Scope)
+  ->
+  (?Child :availableInScope ?Scope)
+]
+
+[DatabaseAvailabilityPropagates:
+  (?DB :availableInScope ?Scope)
+  (?DB sdc:hasTables ?Table)
+  noValue(?Table :availableInScope ?Scope)
+  ->
+  (?Table :availableInScope ?Scope)
+]
+
+[AvailabilityCreatesVisibility:
+  (?Container :availableInScope ?Scope)
+  makeSkolem(?Visibility, ?Container, :Available, :ExternalFramework, ?Scope, "assertion")
+  noValue(?Visibility rdf:type :ComplianceAssertion)
+  ->
+  (?Visibility rdf:type :ComplianceAssertion)
+  (?Visibility :assertedOn ?Container)
+  (?Visibility :assertsLabel :Available)
+  (?Visibility :assertedInScope ?Scope)
+  (?Visibility :assertedByFramework :ExternalFramework)
+]

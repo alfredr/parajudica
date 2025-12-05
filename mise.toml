@@ -1,0 +1,54 @@
+[tools]
+node = "latest"
+python = "3.13.3"
+uv = "latest"
+
+[env]
+# Use the project's virtual environment
+VIRTUAL_ENV = ".venv"
+# Common paths for inference - includes all example data
+DB_FILES = "examples/db/env.ttl examples/db/medical/*.ttl examples/db/employee/*.ttl"
+
+[tasks]
+# Setup and installation
+install = "uv sync --all-groups"
+sync = "uv sync --all-groups"    # Alias for install
+
+# Development tasks
+test = "uv run pytest"
+test-cov = "uv run pytest --cov=inference --cov-report=term-missing"
+lint = "uv run ruff check ."
+format = "uv run ruff format ."
+fix = "uv run ruff check --fix ."
+typecheck = "uv run ty check"
+
+# Combined check for CI
+check = """
+uv run ruff check .
+uv run ty check
+uv run pytest
+"""
+
+# Build tasks
+build = "uv build"
+build-sdist = "uv build --sdist"
+build-wheel = "uv build --wheel"
+
+# Run the inference CLI
+run = "uv run python -m inference.cli"
+cli = { depends = ["run"] }            # Alias
+
+# Clean build artifacts
+[tasks.clean]
+run = """
+rm -rf build dist *.egg-info .pytest_cache .ruff_cache .ty_cache
+find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+find . -type d -name "*.egg-info" -exec rm -rf {} + 2>/dev/null || true
+"""
+
+# Clean everything including venv
+[tasks.clean-all]
+run = """
+rm -rf .venv build dist *.egg-info .pytest_cache .ruff_cache .ty_cache
+find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+"""

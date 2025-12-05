@@ -1,0 +1,355 @@
+@prefix : <https://openprovenance.org/ns/facet/hipaa#> .
+@prefix pj: <https://openprovenance.org/ns/parajudica#> .
+@prefix base: <https://openprovenance.org/ns/facet/base#> .
+@prefix hipaa: <https://openprovenance.org/ns/facet/hipaa#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+
+:HIPAAFramework a pj:Framework ;
+    pj:hasFacet base:Control ;
+    rdfs:comment "HIPAA Privacy Rule implementation for healthcare data protection" ;
+    
+    pj:hasPropagationRule [
+        pj:propagatesLabel :ProtectedHealthInformation ;
+        pj:propagationBehavior pj:Inward ;
+        rdfs:comment "PHI status flows to all contained fields"
+    ] ;
+    
+    pj:hasPropagationRule [
+        pj:propagatesLabel :ProtectedHealthInformation ;
+        pj:propagationBehavior pj:Peer ;
+        rdfs:comment "PHI status spreads to sibling containers in same database"
+    ] ;
+    
+    pj:hasPropagationRule [
+        pj:propagatesLabel :ProtectedHealthInformation ;
+        pj:propagationBehavior pj:Joinable ;
+        rdfs:comment "PHI status spreads via joinable relationships"
+    ] ;
+    
+    pj:hasPropagationRule [
+        pj:propagatesLabel :HIPAAIdentifier ;
+        pj:propagationBehavior pj:Inward ;
+        rdfs:comment "HIPAA identifier status propagates to fields"
+    ] .
+
+
+:HIPAAIdentifier a pj:ComplianceLabel ;
+    pj:belongsToFacet base:Control ;
+    pj:introducedByFramework :HIPAAFramework ;
+    rdfs:label "HIPAA Identifier" ;
+    rdfs:comment "Identifiers that could make health information individually identifiable under HIPAA" .
+
+:ProtectedHealthInformation a pj:ComplianceLabel ;
+    pj:belongsToFacet base:Control ;
+    pj:introducedByFramework :HIPAAFramework ;
+    rdfs:label "Protected Health Information (PHI)" ;
+    rdfs:comment "Individually identifiable health information covered by HIPAA Privacy Rule" .
+
+:HIPAAFramework pj:declaresImplication [
+    a pj:ConditionalImplication ;
+    pj:fromLabel base:Healthcare ;
+    pj:toLabel :ProtectedHealthInformation ;
+    pj:hasCondition [
+        a pj:CompositeCondition ;
+        pj:logicalOperator pj:OR ;
+        pj:hasCondition [
+            a pj:ContainsLabelCondition ;
+            pj:requiresContains :HIPAAIdentifier
+        ] ;
+        pj:hasCondition [
+            a pj:ContainsLabelCondition ;
+            pj:requiresContains :ProtectedHealthInformation
+        ]
+    ] ;
+    rdfs:comment "Healthcare data that CONTAINS HIPAA identifiers OR PHI IS PHI"
+] .
+
+:HIPAAFramework pj:declaresImplication [
+    a pj:ConditionalImplication ;
+    pj:fromAnyLabel (base:DiagnosisCode base:TreatmentCode base:MedicalRecordNumber) ;
+    pj:toLabel :ProtectedHealthInformation ;
+    pj:hasCondition [
+        a pj:CompositeCondition ;
+        pj:logicalOperator pj:AND ;
+        pj:hasCondition [
+            a pj:RelationLabelCondition ;
+            pj:onRelation pj:Parent ;
+            pj:requiresLabel base:Individual
+        ] ;
+        pj:hasCondition [
+            a pj:ContainsLabelCondition ;
+            pj:requiresContains :HIPAAIdentifier
+        ]
+    ] ;
+    rdfs:comment "Medical information in identifiable contexts IS PHI"
+] .
+
+:HIPAAFramework pj:declaresImplication [
+    a pj:ConditionalImplication ;
+    pj:fromLabel base:DirectIdentifier ;
+    pj:toLabel :HIPAAIdentifier ;
+    pj:hasCondition [
+        a pj:RelationLabelCondition ;
+        pj:onRelation pj:Parent ;
+        pj:requiresLabel base:Healthcare
+    ] ;
+    rdfs:comment "Direct identifiers in healthcare context are HIPAA identifiers"
+] .
+
+:HIPAAFramework pj:declaresImplication [
+    a pj:ConditionalImplication ;
+    pj:fromLabel base:BiometricData ;
+    pj:toLabel :HIPAAIdentifier ;
+    pj:hasCondition [
+        a pj:RelationLabelCondition ;
+        pj:onRelation pj:Parent ;
+        pj:requiresLabel base:Healthcare
+    ] ;
+    rdfs:comment "Biometric data in healthcare context are HIPAA identifiers"
+] .
+
+:HIPAAFramework pj:declaresImplication [
+    a pj:ConditionalImplication ;
+    pj:fromLabel base:MomentData ;
+    pj:toLabel :HIPAAIdentifier ;
+    pj:hasCondition [
+        a pj:CompositeCondition ;
+        pj:logicalOperator pj:AND ;
+        pj:hasCondition [
+            a pj:RelationLabelCondition ;
+            pj:onRelation pj:Parent ;
+            pj:requiresLabel base:Healthcare
+        ] ;
+        pj:hasCondition [
+            a pj:RelationLabelCondition ;
+            pj:onRelation pj:Self ;
+            pj:requiresLabel base:Individual
+        ]
+    ] ;
+    rdfs:comment "Specific dates relating to individuals in healthcare context are HIPAA identifiers"
+] .
+
+base:BaseFramework pj:declaresSubclassOf [
+    pj:fromLabel :HIPAAIdentifier ;
+    pj:isSubclassOf base:DirectIdentifier ;
+    rdfs:comment "HIPAA identifiers are direct identifiers"
+] .
+
+
+:DateOfDeath a pj:ComplianceLabel ;
+    pj:belongsToFacet base:Kind ;
+    pj:introducedByFramework :SafeHarborFramework ;
+    rdfs:label "Date of Death" ;
+    rdfs:comment "Date of death - Safe Harbor identifier #3" .
+
+base:BaseFramework pj:declaresSubclassOf [
+    pj:fromLabel :DateOfDeath ;
+    pj:isSubclassOf base:MomentData ;
+    rdfs:comment "Date of death is a specific moment in time"
+] .
+
+base:BaseFramework pj:declaresSubclassOf [
+    pj:fromLabel :DateOfDeath ;
+    pj:isSubclassOf base:DirectIdentifier ;
+    rdfs:comment "Date of death is a direct identifier"
+] .
+
+
+:SafeHarborFramework a pj:Framework ;
+    pj:subFrameworkOf :HIPAAFramework ;
+    pj:hasFacet base:Control ;
+    rdfs:comment "HIPAA Safe Harbor identification of PHI triggers per 45 CFR 164.514(b)(2)" .
+
+:SafeHarborFramework pj:declaresImplication [
+    a pj:ConditionalImplication ;
+    pj:fromLabel :SafeHarborIdentifier ;
+    pj:toLabel :ProtectedHealthInformation ;
+    rdfs:comment "Safe Harbor: When any of the 18 identifiers are present, data is PHI"
+] .
+
+:SafeHarborIdentifier a pj:ComplianceLabel ;
+    pj:belongsToFacet base:Control ;
+    pj:introducedByFramework :SafeHarborFramework ;
+    rdfs:label "Safe Harbor Identifier" ;
+    rdfs:comment "One of the 18 identifiers that must be removed for Safe Harbor de-identification" .
+
+:SafeHarborFramework pj:declaresSubclassOf [
+    pj:fromAnyLabel (
+        # 1. Names
+        base:Name 
+        # 2. Geographic subdivisions smaller than state
+        base:StreetAddress base:City base:ZipCode 
+        # 3. Dates (except year) directly related to individual
+        base:DateOfBirth base:AdmissionDate base:DischargeDate :DateOfDeath
+        # 4. Telephone numbers
+        base:TelephoneNumber 
+        # 5. Fax numbers
+        base:FaxNumber
+        # 6. Email addresses
+        base:EmailAddress
+        # 7. Social Security numbers
+        base:SocialSecurityNumber
+        # 8. Medical record numbers
+        base:MedicalRecordNumber
+        # 9. Health plan beneficiary numbers
+        base:HealthPlanNumber
+        # 10. Account numbers
+        base:AccountNumber
+        # 11. Certificate/license numbers
+        base:DriversLicenseNumber
+        # 12. Vehicle identifiers and serial numbers
+        base:VehicleIdentificationNumber base:LicensePlateNumber
+        # 13. Device identifiers and serial numbers
+        base:DeviceID
+        # 14. Web URLs
+        base:URL
+        # 15. IP addresses
+        base:IPAddress
+        # 16. Biometric identifiers
+        base:Fingerprint base:VoicePrint
+        # 17. Full face photographs and comparable images
+        base:FacialImage base:Photograph
+        # 18. Any other unique identifying number, characteristic, or code
+        base:DirectIdentifier  # Catches all other direct identifiers
+    ) ;
+    pj:isSubclassOf :SafeHarborIdentifier ;
+    pj:hasCondition [
+        a pj:RelationLabelCondition ;
+        pj:onRelation pj:Self ;
+        pj:requiresLabel base:Healthcare
+    ] ;
+    rdfs:comment "The 18 Safe Harbor identifiers per 45 CFR 164.514(b)(2)"
+] .
+
+# HIPAA Framework incorporates Safe Harbor identifiers
+:HIPAAFramework pj:declaresSubclassOf [
+    pj:fromLabel :SafeHarborIdentifier ;
+    pj:isSubclassOf :HIPAAIdentifier ;
+    rdfs:comment "Safe Harbor identifiers are a type of HIPAA identifier"
+] .
+
+###############################################################################
+# How Safe Harbor De-identification Works
+#
+# 1. Data starts in healthcare context
+# 2. If it contains any of the 18 identifiers → SafeHarborIdentifier
+# 3. SafeHarborIdentifier → HIPAAIdentifier (via HIPAAFramework subclass)
+# 4. SafeHarborIdentifier triggers → PHI (via HIPAAFramework trigger rule)
+# 5. PHI propagates broadly (peer, joinable, etc.)
+#
+# For de-identified data:
+# 1. Remove the 18 identifiers from the data
+# 2. No identifiers → No SafeHarborIdentifier labels
+# 3. No SafeHarborIdentifier → No PHI triggered
+# 4. Data remains Healthcare but is not PHI
+#
+# Framework Extension Pattern:
+# - SafeHarborFramework introduces new labels (DateOfDeath)
+# - BaseFramework is extended here to integrate them into its hierarchy
+# - This respects ownership: BaseFramework asserts its own labels (MomentData)
+###############################################################################
+
+###############################################################################
+# Primary Differences from GDPR
+#
+# 1. Joinable Propagation: PHI spreads through joins
+# 2. Peer Propagation: Sibling tables inherit PHI status  
+# 3. Healthcare Context: Focus on healthcare domain vs individuals
+# 4. All-or-Nothing: Entire containers become PHI, not just fields
+# 5. Absence-Based De-identification: No PHI = de-identified (no explicit labels)
+###############################################################################
+
+###############################################################################
+# Integration with Safe Harbor
+#
+# HIPAA framework uses abstract categories while Safe Harbor provides the
+# specific 18-identifier list. This avoids duplication:
+#
+# 1. HIPAA identifies general categories (DirectIdentifier, BiometricData, etc.)
+# 2. Safe Harbor specifies exactly which identifiers trigger PHI
+# 3. Both approaches complement each other:
+#    - HIPAA: Broad categories for general compliance
+#    - Safe Harbor: Specific list for de-identification
+#
+# In practice, Safe Harbor's specific rules would typically take precedence
+# for de-identification purposes, while HIPAA's broader rules ensure
+# comprehensive protection.
+###############################################################################
+
+
+:HIPAAExpertDeterminationFramework a pj:Framework ;
+    pj:subFrameworkOf :HIPAAFramework ;
+    pj:hasFacet :Statistical ;
+    rdfs:label "HIPAA Expert Determination" ;
+    rdfs:comment "Statistical determination using k-anonymity per 45 CFR 164.514(b)(1)" .
+
+:Statistical a pj:Facet ;
+    pj:introducedByFramework :HIPAAExpertDeterminationFramework ;
+    rdfs:label "Statistical" ;
+    rdfs:comment "Statistical and quantitative privacy measures" .
+
+:HIPAAExpertDeterminationFramework pj:declaresImplication [
+    a pj:ConditionalImplication ;
+    pj:fromLabel base:KAnonymityAnalysis ;
+    pj:toLabel :HighReidentificationRisk ;
+    pj:hasCondition [
+        a pj:ComparisonCondition ;
+        pj:leftSource [
+            pj:sourceType pj:LabelParameter ;
+            pj:sourceLabel base:KAnonymityAnalysis ;
+            pj:sourceParameter "minimumCohortSize"
+        ] ;
+        pj:rightSource [
+            pj:sourceType pj:LabelParameter ;
+            pj:sourceLabel :ExpertDeterminationThreshold ;
+            pj:sourceParameter "kThreshold" ;
+            pj:defaultValue 3
+        ] ;
+        pj:comparisonOperator pj:lessThan
+    ] ;
+    rdfs:comment "K-anonymity below threshold triggers high re-identification risk"
+] .
+
+:ExpertDeterminationThreshold a pj:ComplianceLabel ;
+    pj:belongsToFacet :Statistical ;
+    pj:introducedByFramework :HIPAAExpertDeterminationFramework ;
+    rdfs:label "Expert Determination K-Threshold Configuration" ;
+    rdfs:comment "Configures the k-anonymity threshold for expert determination" ;
+    pj:hasParameter [
+        pj:parameterName "kThreshold" ;
+        pj:parameterType xsd:integer ;
+        pj:parameterDescription "Minimum k-value required (default: 3)"
+    ] .
+
+:HighReidentificationRisk a pj:ComplianceLabel ;
+    pj:belongsToFacet :Statistical ;
+    pj:introducedByFramework :HIPAAExpertDeterminationFramework ;
+    rdfs:label "High Re-identification Risk" ;
+    rdfs:comment "Data has k < 3 and poses high re-identification risk" .
+
+:HIPAAExpertDeterminationFramework pj:declaresImplication [
+    a pj:ConditionalImplication ;
+    pj:fromLabel :HighReidentificationRisk ;
+    pj:toLabel :ProtectedHealthInformation ;
+    pj:hasCondition [
+        a pj:RelationLabelCondition ;
+        pj:onRelation pj:Parent ;
+        pj:requiresLabel base:Healthcare
+    ] ;
+    rdfs:comment "High re-identification risk data in healthcare context is PHI"
+] .
+
+:HIPAAExpertDeterminationFramework pj:declaresImplication [
+    a pj:ConditionalImplication ;
+    pj:fromLabel base:DirectIdentifier ;
+    pj:toLabel :ProtectedHealthInformation ;
+    pj:hasCondition [
+        a pj:RelationLabelCondition ;
+        pj:onRelation pj:Parent ;
+        pj:requiresLabel base:Healthcare
+    ] ;
+    rdfs:comment "Direct identifiers in healthcare context are always PHI under Expert Determination"
+] .

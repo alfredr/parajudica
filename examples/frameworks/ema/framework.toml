@@ -1,0 +1,8 @@
+name = "ema"
+type = "privacy"
+version = "1.0.0"
+description = "European Medicines Agency interpretation of GDPR for clinical data"
+depends_on = ["gdpr"]
+
+[files]
+model = ["model/ema.ttl"]

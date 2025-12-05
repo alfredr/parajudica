@@ -1,0 +1,38 @@
+PREFIX : <https://openprovenance.org/ns/parajudica#>
+PREFIX base: <https://openprovenance.org/ns/facet/base#>
+PREFIX hipaa: <https://openprovenance.org/ns/facet/hipaa#>
+PREFIX sdc: <https://openprovenance.org/ns/facet/sdc#>
+PREFIX app: <https://example.org/medical#>
+
+# Challenge 4: De-identification Standards
+# Shows k-anonymity analysis for tables with quasi-identifiers
+# PatientInfo: gender, maritalStatus, postalCode (k=1 - unique postal codes)
+# ProvidersInfo: covidVaccineReceived timestamp (k=1)
+# PatientEncounters: encounterDate timestamp (k=1)
+# AggregatedHealth: maritalStatus, postalCode, year, diagCode (k=3 with internal UUID)
+
+SELECT DISTINCT ?table ?label ?kValue
+WHERE {
+  VALUES ?table { app:PatientInfo app:ProvidersInfo app:PatientEncounters app:AggregatedHealth }
+  
+  {
+    # Get k-anonymity assessment
+    ?assertion a :ComplianceAssertion ;
+      :assertedOn ?table ;
+      :assertsLabel base:KAnonymityAnalysis ;
+      :hasParameterValue ?param .
+    ?param :parameterName "minimumCohortSize" ;
+           :parameterValue ?kValue .
+    BIND(base:KAnonymityAnalysis AS ?label)
+  }
+  UNION
+  {
+    # Get re-identification risk
+    ?assertion a :ComplianceAssertion ;
+      :assertedOn ?table ;
+      :assertsLabel hipaa:HighReidentificationRisk .
+    BIND(hipaa:HighReidentificationRisk AS ?label)
+    BIND("(triggered by k < 3)" AS ?kValue)
+  }
+}
+ORDER BY ?table ?label

@@ -1,0 +1,57 @@
+PREFIX : <https://openprovenance.org/ns/parajudica#>
+PREFIX sdc: <https://openprovenance.org/ns/facet/sdc#>
+PREFIX base: <https://openprovenance.org/ns/facet/base#>
+
+# Cache QI signatures for each record
+# This CONSTRUCT query builds quasi-identifier combinations for records
+# and stores them as signatures for fast k-anonymity computation
+
+CONSTRUCT {
+    ?record :hasQISignature ?qiSignature .
+    ?qiSignature a :QISignature ;
+                 :inScope ?scope ;
+                 :forTable ?table ;
+                 :value ?qiCombo .
+}
+WHERE {
+    # Build QI combinations with consistent ordering  
+    SELECT ?table ?scope ?record ?qiCombo ?qiSignature
+    WHERE {
+        {
+            SELECT ?table ?scope ?record 
+                   (GROUP_CONCAT(?fieldPair; separator=";") as ?qiCombo)
+            WHERE {
+                # Subquery to order fields alphabetically BEFORE grouping
+                {
+                    SELECT ?table ?scope ?record ?fieldPair
+                    WHERE {
+                        ?table sdc:hasRecords ?record .
+                        ?record sdc:hasField ?field .
+                        ?field sdc:fieldName ?fieldName ;
+                               sdc:fieldValue ?value .
+                        
+                        # Only QI fields
+                        ?fieldAssertion a :ComplianceAssertion ;
+                                        :assertedOn ?field ;
+                                        :assertsLabel base:IndirectIdentifier ;
+                                        :assertedInScope ?scope ;
+                                        :assertedByFramework base:BaseFramework .
+                        
+                        BIND(CONCAT(STR(?fieldName), "=", STR(?value)) as ?fieldPair)
+                    }
+                    ORDER BY ?table ?scope ?record ?fieldName  # Alphabetical ordering
+                }
+            }
+            GROUP BY ?table ?scope ?record
+        }
+        
+        # Create signature IRI from QI combo
+        BIND(IRI(CONCAT("urn:qisig:", ENCODE_FOR_URI(?qiCombo))) as ?qiSignature)
+        
+        # Only create if doesn't exist
+        FILTER NOT EXISTS {
+            ?record :hasQISignature ?existingSig .
+            ?existingSig :inScope ?scope .
+        }
+    }
+}

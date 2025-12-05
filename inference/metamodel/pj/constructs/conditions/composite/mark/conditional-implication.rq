@@ -1,0 +1,46 @@
+PREFIX pj: <https://openprovenance.org/ns/parajudica#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+# Mark conditions for evaluation from ConditionalImplications with fromLabel
+# This creates marks for conditions that need to be evaluated because:
+# 1. Container has the fromLabel
+# 2. Container doesn't have the toLabel
+# 3. So the condition determines whether toLabel should be added
+
+CONSTRUCT {
+    ?mark rdf:type pj:ConditionMark ;
+          pj:markedCondition ?condition ;
+          pj:markedForContainer ?container ;
+          pj:markedInScope ?scope ;
+          pj:markedFromImplication ?impl .
+}
+WHERE {
+    # Find ConditionalImplications with fromLabel
+    ?framework pj:declaresImplication ?impl .
+    ?impl a pj:ConditionalImplication ;
+          pj:fromLabel ?fromLabel ;
+          pj:toLabel ?toLabel ;
+          pj:hasCondition ?condition .
+    
+    # Find containers with fromLabel in specific scopes
+    ?container pj:hasLabelInScope ?labelScope .
+    ?labelScope pj:label ?fromLabel ;
+                pj:scope ?scope .
+    
+    # Check container doesn't already have toLabel in this scope
+    FILTER NOT EXISTS {
+        ?container pj:hasLabelInScope ?toLabelScope .
+        ?toLabelScope pj:label ?toLabel ;
+                      pj:scope ?scope .
+    }
+    
+    # Generate deterministic mark URI
+    BIND(IRI(CONCAT("urn:mark:",
+                    MD5(CONCAT(STR(?condition), ":", STR(?container), ":", STR(?scope)))))
+         AS ?mark)
+    
+    # Only create if mark doesn't already exist
+    FILTER NOT EXISTS {
+        ?mark rdf:type pj:ConditionMark .
+    }
+}

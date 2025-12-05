@@ -1,0 +1,42 @@
+PREFIX : <https://openprovenance.org/ns/parajudica#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# Propagate ContainmentAssertions upward to parents
+# If a child contains label X, then parent also contains label X
+
+CONSTRUCT {
+    ?parentContainment rdf:type :ContainmentAssertion ;
+                      :assertedOn ?parent ;
+                      :assertsContains ?label ;
+                      :assertedInScope ?scope ;
+                      :assertedByFramework ?framework ;
+                      :derivedVia :UpwardContainmentPropagation .
+}
+WHERE {
+    # Start from existing ContainmentAssertions on children
+    ?childContainment rdf:type :ContainmentAssertion ;
+                     :assertedOn ?child ;
+                     :assertsContains ?label ;
+                     :assertedInScope ?scope ;
+                     :assertedByFramework ?framework .
+
+    # Find parent containers
+    ?parent :contains ?child .
+
+    # Parent must be visible in same scope
+    ?parentAssertion rdf:type :ComplianceAssertion ;
+                    :assertedOn ?parent ;
+                    :assertedInScope ?scope .
+
+    # Generate deterministic URI for parent's ContainmentAssertion
+    BIND(IRI(CONCAT("urn:containment:",
+                    MD5(CONCAT(STR(?parent), ":", STR(?label), ":",
+                              STR(?scope), ":", STR(?framework)))))
+         as ?parentContainment)
+
+    # Only create if doesn't already exist
+    FILTER NOT EXISTS {
+        ?parentContainment rdf:type :ContainmentAssertion .
+    }
+}

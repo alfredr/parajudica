@@ -1,0 +1,158 @@
+@prefix : <https://openprovenance.org/ns/facet/sdc#> .
+@prefix pj: <https://openprovenance.org/ns/parajudica#> .
+@prefix base: <https://openprovenance.org/ns/facet/base#> .@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix app: <https://example.org/medical#> .
+
+app:PatientEncounters a :Table ;
+  pj:hasTag base:Healthcare ;
+  pj:hasTag base:Individual ;
+  :declaresField [
+    :forFieldName "encounterID" ;
+    :hasLabel base:InternalUUID
+  ] ;
+  :declaresField [
+    :forFieldName "provider" ;
+    :hasLabel base:EmployeeID
+  ] ;
+  :declaresField [
+    :forFieldName "patient" ;
+    :hasLabel base:InternalUUID
+  ] ;
+  :declaresField [
+    :forFieldName "encounterDate" ;
+    :hasLabel base:Timestamp
+  ] ;
+  :declaresField [
+    :forFieldName "diagCode" ;
+    :hasLabel base:DiagnosisCode
+  ] ;
+  :declaresField [
+    :forFieldName "labCode" ;
+    :hasLabel base:LabCode
+  ] ;
+  :declaresField [
+    :forFieldName "labResult" ;
+    :hasLabel base:LabResult
+  ] ;
+  :hasRecords
+    [ a :Record ;
+      :hasField [ :fieldName "encounterID" ; :fieldValue "57107685-4e64-7631-92c6-62d9957951f1" ],
+                [ :fieldName "provider" ; :fieldValue "af38db48-a1e8-235d-9ab3-1c8710c8d6f4" ],
+                [ :fieldName "patient" ; :fieldValue "ee0f958b-59bf-4d1a-8c8a-ce5fcea1512c" ],
+                [ :fieldName "encounterDate" ; :fieldValue "2020-10-02"^^xsd:date ],
+                [ :fieldName "diagCode" ; :fieldValue "J09.X3" ],
+                [ :fieldName "labCode" ; :fieldValue "RSV" ],
+                [ :fieldName "labResult" ; :fieldValue "POSITIVE" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "encounterID" ; :fieldValue "c1903605-81a3-35d0-a6ab-0350f5fdcd62" ],
+                [ :fieldName "provider" ; :fieldValue "5c3b0a57-7413-41ee-8002-f79ff2b6986f" ],
+                [ :fieldName "patient" ; :fieldValue "940f2d3b-763c-5ffd-8b5f-c65fa3d38dd2" ],
+                [ :fieldName "encounterDate" ; :fieldValue "2020-01-09"^^xsd:date ],
+                [ :fieldName "diagCode" ; :fieldValue "J21.0" ],
+                [ :fieldName "labCode" ; :fieldValue "COVID" ],
+                [ :fieldName "labResult" ; :fieldValue "NEGATIVE" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "encounterID" ; :fieldValue "154e13ff-6b49-d514-b7bd-fb1d37801529" ],
+                [ :fieldName "provider" ; :fieldValue "19fa0e42-161c-2cd7-a89b-21f2584faa14" ],
+                [ :fieldName "patient" ; :fieldValue "b94aca9c-9783-f193-92fb-9d4e3d5bb1af" ],
+                [ :fieldName "encounterDate" ; :fieldValue "2020-01-25"^^xsd:date ],
+                [ :fieldName "diagCode" ; :fieldValue "J09.X1" ],
+                [ :fieldName "labCode" ; :fieldValue "FLU" ],
+                [ :fieldName "labResult" ; :fieldValue "NEGATIVE" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "encounterID" ; :fieldValue "5a8dd683-2947-fba3-8475-2d4dffa428b8" ],
+                [ :fieldName "provider" ; :fieldValue "73e3fa1d-1ca3-192c-9771-855a735c5712" ],
+                [ :fieldName "patient" ; :fieldValue "5368988f-9750-545d-a362-cab42d255b7f" ],
+                [ :fieldName "encounterDate" ; :fieldValue "2020-08-06"^^xsd:date ],
+                [ :fieldName "diagCode" ; :fieldValue "J09.X3" ],
+                [ :fieldName "labCode" ; :fieldValue "RSV" ],
+                [ :fieldName "labResult" ; :fieldValue "NEGATIVE" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "encounterID" ; :fieldValue "bf8d8265-7418-a9c1-9f29-8796a3f1c996" ],
+                [ :fieldName "provider" ; :fieldValue "f5332c34-d21f-3768-8bc3-00634d75c979" ],
+                [ :fieldName "patient" ; :fieldValue "0ba8e295-0b3e-dce7-b587-b150e4a494e9" ],
+                [ :fieldName "encounterDate" ; :fieldValue "2020-04-22"^^xsd:date ],
+                [ :fieldName "diagCode" ; :fieldValue "J09.X3" ],
+                [ :fieldName "labCode" ; :fieldValue "COVID" ],
+                [ :fieldName "labResult" ; :fieldValue "NEGATIVE" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "encounterID" ; :fieldValue "a9a828d1-54c6-8460-9be4-9d25864ffe43" ],
+                [ :fieldName "provider" ; :fieldValue "73e3fa1d-1ca3-192c-9771-855a735c5712" ],
+                [ :fieldName "patient" ; :fieldValue "fc4a2045-765d-03aa-ae58-de49a83156d3" ],
+                [ :fieldName "encounterDate" ; :fieldValue "2020-10-16"^^xsd:date ],
+                [ :fieldName "diagCode" ; :fieldValue "J09.X1" ],
+                [ :fieldName "labCode" ; :fieldValue "RSV" ],
+                [ :fieldName "labResult" ; :fieldValue "POSITIVE" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "encounterID" ; :fieldValue "765d5a3c-b2d5-cec0-9c46-58c904b466ce" ],
+                [ :fieldName "provider" ; :fieldValue "f5332c34-d21f-3768-8bc3-00634d75c979" ],
+                [ :fieldName "patient" ; :fieldValue "af2f6e14-1d2f-9da0-b640-d99a81139801" ],
+                [ :fieldName "encounterDate" ; :fieldValue "2020-06-08"^^xsd:date ],
+                [ :fieldName "diagCode" ; :fieldValue "J09.X3" ],
+                [ :fieldName "labCode" ; :fieldValue "RSV" ],
+                [ :fieldName "labResult" ; :fieldValue "NEGATIVE" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "encounterID" ; :fieldValue "a7cc7dba-c9c8-9434-b2f2-ee4291f1c05e" ],
+                [ :fieldName "provider" ; :fieldValue "f5332c34-d21f-3768-8bc3-00634d75c979" ],
+                [ :fieldName "patient" ; :fieldValue "c10f078c-12a4-4eb6-bf36-4737c758a844" ],
+                [ :fieldName "encounterDate" ; :fieldValue "2020-07-04"^^xsd:date ],
+                [ :fieldName "diagCode" ; :fieldValue "J21.0" ],
+                [ :fieldName "labCode" ; :fieldValue "RSV" ],
+                [ :fieldName "labResult" ; :fieldValue "ERROR" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "encounterID" ; :fieldValue "b64f432d-5022-2c04-9be0-596f26e99077" ],
+                [ :fieldName "provider" ; :fieldValue "19fa0e42-161c-2cd7-a89b-21f2584faa14" ],
+                [ :fieldName "patient" ; :fieldValue "3df5114f-7776-2a1c-91a8-c60c6b859b54" ],
+                [ :fieldName "encounterDate" ; :fieldValue "2020-06-05"^^xsd:date ],
+                [ :fieldName "diagCode" ; :fieldValue "J09.X1" ],
+                [ :fieldName "labCode" ; :fieldValue "COVID" ],
+                [ :fieldName "labResult" ; :fieldValue "POSITIVE" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "encounterID" ; :fieldValue "8792fb83-4c8d-5a39-8030-123d7e169bda" ],
+                [ :fieldName "provider" ; :fieldValue "f5332c34-d21f-3768-8bc3-00634d75c979" ],
+                [ :fieldName "patient" ; :fieldValue "5888eb85-5ab8-ba39-aacd-3cad8f0051db" ],
+                [ :fieldName "encounterDate" ; :fieldValue "2020-11-17"^^xsd:date ],
+                [ :fieldName "diagCode" ; :fieldValue "J09.X2" ],
+                [ :fieldName "labCode" ; :fieldValue "COVID" ],
+                [ :fieldName "labResult" ; :fieldValue "ERROR" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "encounterID" ; :fieldValue "01a80b36-681a-ea51-ba10-92673251862f" ],
+                [ :fieldName "provider" ; :fieldValue "af38db48-a1e8-235d-9ab3-1c8710c8d6f4" ],
+                [ :fieldName "patient" ; :fieldValue "426b10bf-4b1c-b366-a78d-6b6029132e47" ],
+                [ :fieldName "encounterDate" ; :fieldValue "2020-10-24"^^xsd:date ],
+                [ :fieldName "diagCode" ; :fieldValue "J10.1" ],
+                [ :fieldName "labCode" ; :fieldValue "RSV" ],
+                [ :fieldName "labResult" ; :fieldValue "ERROR" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "encounterID" ; :fieldValue "fa404ed3-c1a3-030b-8832-0dcaba65fa84" ],
+                [ :fieldName "provider" ; :fieldValue "af38db48-a1e8-235d-9ab3-1c8710c8d6f4" ],
+                [ :fieldName "patient" ; :fieldValue "cdd8c3c4-f776-4a2a-b688-506667bb2708" ],
+                [ :fieldName "encounterDate" ; :fieldValue "2020-06-04"^^xsd:date ],
+                [ :fieldName "diagCode" ; :fieldValue "J09.X1" ],
+                [ :fieldName "labCode" ; :fieldValue "COVID" ],
+                [ :fieldName "labResult" ; :fieldValue "NEGATIVE" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "encounterID" ; :fieldValue "39f91b5c-6064-1a68-9e02-3ed0b5f13f08" ],
+                [ :fieldName "provider" ; :fieldValue "5c3b0a57-7413-41ee-8002-f79ff2b6986f" ],
+                [ :fieldName "patient" ; :fieldValue "5c9be68a-0788-e1ba-b5a7-0545501e28ae" ],
+                [ :fieldName "encounterDate" ; :fieldValue "2020-03-14"^^xsd:date ],
+                [ :fieldName "diagCode" ; :fieldValue "J09.X2" ],
+                [ :fieldName "labCode" ; :fieldValue "FLU" ],
+                [ :fieldName "labResult" ; :fieldValue "NEGATIVE" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "encounterID" ; :fieldValue "519e8373-5cf4-4c0a-b02e-785d00c1d4b2" ],
+                [ :fieldName "provider" ; :fieldValue "af38db48-a1e8-235d-9ab3-1c8710c8d6f4" ],
+                [ :fieldName "patient" ; :fieldValue "8c7a6f91-e469-c0b5-a6e3-972062619ef3" ],
+                [ :fieldName "encounterDate" ; :fieldValue "2021-02-08"^^xsd:date ],
+                [ :fieldName "diagCode" ; :fieldValue "Z23" ],
+                [ :fieldName "labCode" ; :fieldValue "COVID" ],
+                [ :fieldName "labResult" ; :fieldValue "NEGATIVE" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "encounterID" ; :fieldValue "a1b2c3d4-e5f6-7890-abcd-ef1234567890" ],
+                [ :fieldName "provider" ; :fieldValue "af38db48-a1e8-235d-9ab3-1c8710c8d6f4" ],
+                [ :fieldName "patient" ; :fieldValue "f5332c34-d21f-3768-8bc3-00634d75c979" ],
+                [ :fieldName "encounterDate" ; :fieldValue "2023-04-26"^^xsd:date ],
+                [ :fieldName "diagCode" ; :fieldValue "Z23" ],
+                [ :fieldName "labCode" ; :fieldValue "COVID" ],
+                [ :fieldName "labResult" ; :fieldValue "NEGATIVE" ] ].

@@ -1,0 +1,52 @@
+[build-system]
+requires = ["uv_build>=0.8.14,<0.9.0"]
+build-backend = "uv_build"
+
+[project]
+name = "privacy-schema-inference"
+version = "0.1.0"
+description = "Privacy Schema Inference Engine for Compliance Frameworks"
+readme = "README.md"
+requires-python = ">=3.13"
+classifiers = ["Private :: Do Not Upload"]
+
+dependencies = [
+    "rdflib>=6.0.0",
+    "networkx>=3.0",
+    "pyoxigraph>=0.4.0",
+    "rich>=14.1.0",
+    "pyyaml>=6.0.2",
+]
+
+[project.scripts]
+privacy-inference = "inference.cli:main"
+
+[tool.uv.build-backend]
+# Module has a different name than the package
+module-name = "inference"
+module-root = "inference/src"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=4.0.0",
+    "ruff>=0.1.0",
+    "ty>=0.0.1a19",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["inference/src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "C4", "UP", "N", "SIM"]
+ignore = ["E501", "B008", "C901", "SIM108"]
+
+[tool.ty.environment]
+root = ["inference/src"]
+python-version = "3.13"
+extra-paths = [".venv/lib/python3.13/site-packages"]

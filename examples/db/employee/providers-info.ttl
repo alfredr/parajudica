@@ -1,0 +1,75 @@
+@prefix : <https://openprovenance.org/ns/facet/sdc#> .
+@prefix pj: <https://openprovenance.org/ns/parajudica#> .
+@prefix base: <https://openprovenance.org/ns/facet/base#> .@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix app: <https://example.org/medical#> .
+
+app:ProvidersInfo a :Table ;
+  pj:hasTag base:Individual ;
+  :declaresField [
+    :forFieldName "provider" ;
+    :hasLabel base:InternalUUID
+  ] ;
+  :declaresField [
+    :forFieldName "npi" ;
+    :hasLabel base:NationalProviderIdentifier
+  ] ;
+  :declaresField [
+    :forFieldName "firstName" ;
+    :hasLabel base:Name
+  ] ;
+  :declaresField [
+    :forFieldName "lastName" ;
+    :hasLabel base:Name
+  ] ;
+  :declaresField [
+    :forFieldName "ssn" ;
+    :hasLabel base:SocialSecurityNumber
+  ] ;
+  :declaresField [
+    :forFieldName "phoneNumber" ;
+    :hasLabel base:TelephoneNumber
+  ] ;
+  :declaresField [
+    :forFieldName "covidVaccineReceived" ;
+    :hasLabel base:Timestamp
+  ] ;
+  :hasRecords
+    [ a :Record ;
+      :hasField [ :fieldName "provider"; :fieldValue "af38db48-a1e8-235d-9ab3-1c8710c8d6f4" ],
+                [ :fieldName "npi"; :fieldValue "477377200700231"^^xsd:integer ],
+                [ :fieldName "firstName"; :fieldValue "Stolte" ],
+                [ :fieldName "lastName"; :fieldValue "Firestone" ],
+                [ :fieldName "ssn"; :fieldValue "784-51-357" ],
+                [ :fieldName "phoneNumber"; :fieldValue <tel:+1-614-279-1162> ],
+                [ :fieldName "covidVaccineReceived"; :fieldValue "2021-01-01"^^xsd:date ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "provider"; :fieldValue "19fa0e42-161c-2cd7-a89b-21f2584faa14" ],
+                [ :fieldName "npi"; :fieldValue "609569901005019"^^xsd:integer ],
+                [ :fieldName "firstName"; :fieldValue "Wilkening" ],
+                [ :fieldName "lastName"; :fieldValue "Tucker" ],
+                [ :fieldName "ssn"; :fieldValue "649-37-345" ],
+                [ :fieldName "phoneNumber"; :fieldValue <tel:+1-614-591-0735> ],
+                [ :fieldName "covidVaccineReceived"; :fieldValue "2022-04-03"^^xsd:date ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "provider"; :fieldValue "73e3fa1d-1ca3-192c-9771-855a735c5712" ],
+                [ :fieldName "npi"; :fieldValue "454180543204514"^^xsd:integer ],
+                [ :fieldName "firstName"; :fieldValue "Seamster" ],
+                [ :fieldName "lastName"; :fieldValue "Thole" ],
+                [ :fieldName "ssn"; :fieldValue "194-64-971" ],
+                [ :fieldName "phoneNumber"; :fieldValue <tel:+1-614-384-5506> ],
+                [ :fieldName "covidVaccineReceived"; :fieldValue "2022-01-11"^^xsd:date ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "provider"; :fieldValue "f5332c34-d21f-3768-8bc3-00634d75c979" ],
+                [ :fieldName "npi"; :fieldValue "824330347961067"^^xsd:integer ],
+                [ :fieldName "firstName"; :fieldValue "Cape" ],
+                [ :fieldName "lastName"; :fieldValue "Orzechowski" ],
+                [ :fieldName "ssn"; :fieldValue "208-71-878" ],
+                [ :fieldName "phoneNumber"; :fieldValue <tel:+1-614-892-0438> ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "provider"; :fieldValue "5c3b0a57-7413-41ee-8002-f79ff2b6986f" ],
+                [ :fieldName "npi"; :fieldValue "570921144579136"^^xsd:integer ],
+                [ :fieldName "firstName"; :fieldValue "Grunwald" ],
+                [ :fieldName "lastName"; :fieldValue "Finegan" ],
+                [ :fieldName "ssn"; :fieldValue "208-40-455" ],
+                [ :fieldName "phoneNumber"; :fieldValue <tel:+1-614-200-1136> ] ] .

@@ -1,0 +1,48 @@
+PREFIX pj: <https://openprovenance.org/ns/parajudica#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# Evaluate unconditional implications (no conditions)
+# These are simpler implications that always apply when fromLabel is present
+
+CONSTRUCT {
+    ?newAssertion a pj:ComplianceAssertion ;
+                  pj:assertedOn ?container ;
+                  pj:assertedInScope ?scope ;
+                  pj:assertsLabel ?toLabel ;
+                  pj:assertedByFramework ?framework ;
+                  pj:derivedFrom ?assertion ;
+                  pj:derivedVia pj:ImplicationRule .
+}
+WHERE {
+    # Find unconditional implications (those without conditions)
+    ?framework pj:declaresImplication ?impl .
+    ?impl pj:fromLabel ?fromLabel ;
+          pj:toLabel ?toLabel .
+    
+    # Exclude conditional implications
+    FILTER NOT EXISTS { ?impl a pj:ConditionalImplication }
+    
+    # Find containers with fromLabel in specific scopes (using index)
+    ?container pj:hasLabelInScope ?labelScope .
+    ?labelScope pj:label ?fromLabel ;
+               pj:scope ?scope .
+    
+    # Find the assertion that created this label (for derivedFrom)
+    ?assertion a pj:ComplianceAssertion ;
+               pj:assertedOn ?container ;
+               pj:assertedInScope ?scope ;
+               pj:assertsLabel ?fromLabel .
+    
+    # Create deterministic assertion ID
+    BIND(IRI(CONCAT("urn:skolem:",
+                    ENCODE_FOR_URI(STR(?container)), "_",
+                    ENCODE_FOR_URI(STR(?toLabel)), "_",
+                    ENCODE_FOR_URI(STR(?framework)), "_",
+                    ENCODE_FOR_URI(STR(?scope)), "_assertion")) AS ?newAssertion)
+    
+    # Check target doesn't exist using the deterministic ID
+    FILTER NOT EXISTS {
+        ?newAssertion a pj:ComplianceAssertion .
+    }
+}

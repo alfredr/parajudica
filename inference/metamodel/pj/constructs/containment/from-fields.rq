@@ -1,0 +1,47 @@
+PREFIX : <https://openprovenance.org/ns/parajudica#>
+PREFIX sdc: <https://openprovenance.org/ns/facet/sdc#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# Create ContainmentAssertions for tables based on their fields' labels
+# If a table's field has label X, then the table contains X
+
+CONSTRUCT {
+    ?containmentAssertion rdf:type :ContainmentAssertion ;
+                          :assertedOn ?table ;
+                          :assertsContains ?label ;
+                          :assertedInScope ?scope ;
+                          :assertedByFramework ?framework ;
+                          :derivedVia :FieldContainment .
+}
+WHERE {
+    # Start from conditions that need containment checks
+    ?condition rdf:type :ContainsLabelCondition ;
+              :requiresContains ?label .
+    
+    # Find fields with this label
+    ?table sdc:hasRecords ?record .
+    ?record sdc:hasField ?field .
+    
+    ?fieldAssertion rdf:type :ComplianceAssertion ;
+                   :assertedOn ?field ;
+                   :assertsLabel ?label ;
+                   :assertedInScope ?scope ;
+                   :assertedByFramework ?framework .
+    
+    # Table must be visible in same scope
+    ?tableAssertion rdf:type :ComplianceAssertion ;
+                   :assertedOn ?table ;
+                   :assertedInScope ?scope .
+    
+    # Generate deterministic URI
+    BIND(IRI(CONCAT("urn:containment:",
+                    MD5(CONCAT(STR(?table), ":", STR(?label), ":",
+                              STR(?scope), ":", STR(?framework)))))
+         as ?containmentAssertion)
+    
+    # Only create if doesn't already exist
+    FILTER NOT EXISTS {
+        ?containmentAssertion rdf:type :ContainmentAssertion .
+    }
+}

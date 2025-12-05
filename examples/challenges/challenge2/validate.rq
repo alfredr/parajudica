@@ -1,0 +1,21 @@
+PREFIX : <https://openprovenance.org/ns/parajudica#>
+PREFIX base: <https://openprovenance.org/ns/facet/base#>
+PREFIX hipaa: <https://openprovenance.org/ns/facet/hipaa#>
+PREFIX gdpr: <https://openprovenance.org/ns/facet/gdpr#>
+PREFIX app: <https://example.org/medical#>
+
+# Challenge 2: Framework Divergence
+# Show how HIPAA and GDPR classify ProvidersInfo differently when joined with patient data
+
+SELECT ?scope ?container ?framework ?label
+WHERE {
+  VALUES ?container { app:ProvidersInfo app:PatientTreatments }
+  VALUES ?scope { app:ResearchScope app:MedicalGovernanceScope}
+  
+  ?assertion a :ComplianceAssertion ;
+    :assertedOn ?container ;
+    :assertsLabel ?label ;
+    :assertedInScope ?scope ;
+    :assertedByFramework ?framework .
+}
+ORDER BY ?scope ?container ?framework ?label

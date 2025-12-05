@@ -1,0 +1,34 @@
+@prefix : <https://openprovenance.org/ns/parajudica#>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+
+#######################################################################
+#                    PARENT FRAMEWORK ASSERTIONS                     #
+#######################################################################
+# Parent frameworks also assert labels from their sub-frameworks
+# This ensures parent framework propagation rules apply
+
+[ParentFrameworkAssertion:
+  (?SubAssertion rdf:type :ComplianceAssertion)
+  (?SubAssertion :assertsLabel ?Label)
+  (?SubAssertion :assertedInScope ?Scope)
+  (?SubAssertion :assertedOn ?Container)
+  (?SubAssertion :assertedByFramework ?SubFramework)
+  
+  # Don't process assertions that were already derived via parent framework
+  noValue(?SubAssertion :derivedVia :ParentFrameworkAssertion)
+  
+  (?SubFramework :subFrameworkOf ?ParentFramework)
+  
+  # Create parent framework assertion
+  makeSkolem(?ParentAssertion, ?Container, ?Label, ?ParentFramework, ?Scope, "assertion")
+  noValue(?ParentAssertion rdf:type :ComplianceAssertion)
+  ->
+  (?ParentAssertion rdf:type :ComplianceAssertion)
+  (?ParentAssertion :assertedByFramework ?ParentFramework)
+  (?ParentAssertion :assertedInScope ?Scope)
+  (?ParentAssertion :assertedOn ?Container)
+  (?ParentAssertion :assertsLabel ?Label)
+  (?ParentAssertion :derivedFrom ?SubAssertion)
+  (?ParentAssertion :derivedVia :ParentFrameworkAssertion)
+]

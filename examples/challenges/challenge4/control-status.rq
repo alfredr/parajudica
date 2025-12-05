@@ -1,0 +1,30 @@
+PREFIX : <https://openprovenance.org/ns/parajudica#>
+PREFIX base: <https://openprovenance.org/ns/facet/base#>
+PREFIX hipaa: <https://openprovenance.org/ns/facet/hipaa#>
+PREFIX gdpr: <https://openprovenance.org/ns/facet/gdpr#>
+PREFIX italy: <https://openprovenance.org/ns/facet/italy#>
+PREFIX sdc: <https://openprovenance.org/ns/facet/sdc#>
+PREFIX app: <https://example.org/medical#>
+
+# Control Status Query: Shows compliance classifications for each table
+# Demonstrates how different frameworks classify the same data
+# Includes database, table, scope, framework, and label
+
+SELECT DISTINCT ?database ?table ?scope ?framework ?label
+WHERE {
+  VALUES ?table { app:PatientInfo app:ProvidersInfo app:PatientEncounters app:AggregatedHealth }
+  
+  # Get all Control facet labels
+  ?assertion a :ComplianceAssertion ;
+    :assertedOn ?table ;
+    :assertedInScope ?scope ;
+    :assertsLabel ?label ;
+    :assertedByFramework ?framework .
+  
+  # Get database for each table
+  ?database sdc:hasTables ?table .
+  
+  # Filter for Control facet labels only
+  ?label :belongsToFacet base:Control .
+}
+ORDER BY ?scope ?framework ?database ?table ?label

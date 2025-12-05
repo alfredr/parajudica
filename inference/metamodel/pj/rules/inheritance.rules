@@ -1,0 +1,21 @@
+@prefix : <https://openprovenance.org/ns/parajudica#>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+
+[InheritPropagationRules:
+    (?Child :extends ?Parent)
+    (?Parent :hasPropagationRule ?Rule)
+    noValue(?Child :hasPropagationRule ?Rule)
+    ->
+    (?Child :hasPropagationRule ?Rule)
+]
+
+
+[InheritSubclassDeclarations:
+    (?Child :extends ?Parent)
+    (?Parent :declaresSubclassOf ?Decl)
+    noValue(?Child :overrides ?Decl)
+    noValue(?Child :declaresSubclassOf ?Decl)
+    ->
+    (?Child :declaresSubclassOf ?Decl)
+]

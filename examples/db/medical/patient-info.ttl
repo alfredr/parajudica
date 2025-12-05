@@ -1,0 +1,214 @@
+@prefix : <https://openprovenance.org/ns/facet/sdc#> .
+@prefix pj: <https://openprovenance.org/ns/parajudica#> .
+@prefix base: <https://openprovenance.org/ns/facet/base#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix app: <https://example.org/medical#> .
+
+app:PatientInfo a :Table ;
+  pj:hasTag base:Healthcare ;
+  pj:hasTag base:Individual ;
+  :declaresField [
+    :forFieldName "patient" ;
+    :hasLabel base:InternalUUID
+  ] ;
+  :declaresField [
+    :forFieldName "mrn" ;
+    :hasLabel base:MedicalRecordNumber
+  ] ;
+  :declaresField [
+    :forFieldName "firstName" ;
+    :hasLabel base:Name
+  ] ;
+  :declaresField [
+    :forFieldName "lastName" ;
+    :hasLabel base:Name
+  ] ;
+  :declaresField [
+    :forFieldName "asab" ;
+    :hasLabel base:Gender
+  ] ;
+  :declaresField [
+    :forFieldName "maritalStatus" ;
+    :hasLabel base:MaritalStatus
+  ] ;
+  :declaresField [
+    :forFieldName "postalCode" ;
+    :hasLabel base:ZipCode
+  ] ;
+  :declaresField [
+    :forFieldName "phoneNumber" ;
+    :hasLabel base:TelephoneNumber
+  ] ;
+  :hasRecords
+    [ a :Record ;
+      :hasField [ :fieldName "patient"; :fieldValue "0ba8e295-0b3e-dce7-b587-b150e4a494e9" ],
+                [ :fieldName "mrn"; :fieldValue "7231950" ],
+                [ :fieldName "asab"; :fieldValue "Female" ],
+                [ :fieldName "maritalStatus"; :fieldValue "MARRIED" ],
+                [ :fieldName "firstName"; :fieldValue "Rines" ],
+                [ :fieldName "lastName"; :fieldValue "Malecki" ],
+                [ :fieldName "postalCode"; :fieldValue "92083-9690" ],
+                [ :fieldName "phoneNumber"; :fieldValue <tel:+1-330-967-3601> ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "patient"; :fieldValue "3df5114f-7776-2a1c-91a8-c60c6b859b54" ],
+                [ :fieldName "mrn"; :fieldValue "1388597" ],
+                [ :fieldName "asab"; :fieldValue "Female" ],
+                [ :fieldName "maritalStatus"; :fieldValue "MARRIED" ],
+                [ :fieldName "firstName"; :fieldValue "Paxson" ],
+                [ :fieldName "lastName"; :fieldValue "Rowden" ],
+                [ :fieldName "postalCode"; :fieldValue "89304-6134" ],
+                [ :fieldName "phoneNumber"; :fieldValue <tel:+1-419-522-5941> ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "patient"; :fieldValue "426b10bf-4b1c-b366-a78d-6b6029132e47" ],
+                [ :fieldName "mrn"; :fieldValue "9625792" ],
+                [ :fieldName "asab"; :fieldValue "Female" ],
+                [ :fieldName "maritalStatus"; :fieldValue "LEGALLY SEPARATED" ],
+                [ :fieldName "firstName"; :fieldValue "Storie" ],
+                [ :fieldName "lastName"; :fieldValue "Cassell" ],
+                [ :fieldName "postalCode"; :fieldValue "42437-3312" ],
+                [ :fieldName "phoneNumber"; :fieldValue <tel:+1-614-610-8524> ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "patient"; :fieldValue "5368988f-9750-545d-a362-cab42d255b7f" ],
+                [ :fieldName "mrn"; :fieldValue "8399287" ],
+                [ :fieldName "asab"; :fieldValue "Male" ],
+                [ :fieldName "maritalStatus"; :fieldValue "WIDOWED" ],
+                [ :fieldName "firstName"; :fieldValue "Brandon" ],
+                [ :fieldName "lastName"; :fieldValue "Moy" ],
+                [ :fieldName "postalCode"; :fieldValue "31402-1277" ],
+                [ :fieldName "phoneNumber"; :fieldValue <tel:+1-216-674-3796> ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "patient"; :fieldValue "5888eb85-5ab8-ba39-aacd-3cad8f0051db" ],
+                [ :fieldName "mrn"; :fieldValue "7677892" ],
+                [ :fieldName "asab"; :fieldValue "Male" ],
+                [ :fieldName "maritalStatus"; :fieldValue "MARRIED" ],
+                [ :fieldName "firstName"; :fieldValue "Himes" ],
+                [ :fieldName "lastName"; :fieldValue "Weng" ],
+                [ :fieldName "postalCode"; :fieldValue "62245-6925" ],
+                [ :fieldName "phoneNumber"; :fieldValue <tel:+1-410-793-8156> ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "patient"; :fieldValue "5c9be68a-0788-e1ba-b5a7-0545501e28ae" ],
+                [ :fieldName "mrn"; :fieldValue "8271993" ],
+                [ :fieldName "asab"; :fieldValue "Female" ],
+                [ :fieldName "maritalStatus"; :fieldValue "MARRIED" ],
+                [ :fieldName "firstName"; :fieldValue "Bickford" ],
+                [ :fieldName "lastName"; :fieldValue "Wilbourn" ],
+                [ :fieldName "postalCode"; :fieldValue "88031-6327" ],
+                [ :fieldName "phoneNumber"; :fieldValue <tel:+1-330-579-3355> ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "patient"; :fieldValue "8c7a6f91-e469-c0b5-a6e3-972062619ef3" ],
+                [ :fieldName "mrn"; :fieldValue "9146735" ],
+                [ :fieldName "asab"; :fieldValue "Female" ],
+                [ :fieldName "maritalStatus"; :fieldValue "NEVER MARRIED" ],
+                [ :fieldName "firstName"; :fieldValue "Schumann" ],
+                [ :fieldName "lastName"; :fieldValue "Birnbaum" ],
+                [ :fieldName "postalCode"; :fieldValue "40484-9987" ],
+                [ :fieldName "phoneNumber"; :fieldValue <tel:+1-216-444-8798> ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "patient"; :fieldValue "940f2d3b-763c-5ffd-8b5f-c65fa3d38dd2" ],
+                [ :fieldName "mrn"; :fieldValue "6614235" ],
+                [ :fieldName "asab"; :fieldValue "Female" ],
+                [ :fieldName "maritalStatus"; :fieldValue "MARRIED" ],
+                [ :fieldName "firstName"; :fieldValue "Drewry" ],
+                [ :fieldName "lastName"; :fieldValue "Duda" ],
+                [ :fieldName "postalCode"; :fieldValue "61649-8282" ],
+                [ :fieldName "phoneNumber"; :fieldValue <tel:+1-410-412-2354> ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "patient"; :fieldValue "af2f6e14-1d2f-9da0-b640-d99a81139801" ],
+                [ :fieldName "mrn"; :fieldValue "6215509" ],
+                [ :fieldName "asab"; :fieldValue "Male" ],
+                [ :fieldName "maritalStatus"; :fieldValue "PARTNERED" ],
+                [ :fieldName "firstName"; :fieldValue "Hulse" ],
+                [ :fieldName "lastName"; :fieldValue "Steptoe" ],
+                [ :fieldName "postalCode"; :fieldValue "03951-6222" ],
+                [ :fieldName "phoneNumber"; :fieldValue <tel:+1-614-986-9578> ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "patient"; :fieldValue "b94aca9c-9783-f193-92fb-9d4e3d5bb1af" ],
+                [ :fieldName "mrn"; :fieldValue "318730" ],
+                [ :fieldName "asab"; :fieldValue "Male" ],
+                [ :fieldName "maritalStatus"; :fieldValue "LEGALLY SEPARATED" ],
+                [ :fieldName "firstName"; :fieldValue "Drumm" ],
+                [ :fieldName "lastName"; :fieldValue "Vanhouten" ],
+                [ :fieldName "postalCode"; :fieldValue "54277-0787" ],
+                [ :fieldName "phoneNumber"; :fieldValue <tel:+1-419-401-3930> ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "patient"; :fieldValue "c10f078c-12a4-4eb6-bf36-4737c758a844" ],
+                [ :fieldName "mrn"; :fieldValue "4900011" ],
+                [ :fieldName "asab"; :fieldValue "Male" ],
+                [ :fieldName "maritalStatus"; :fieldValue "MARRIED" ],
+                [ :fieldName "firstName"; :fieldValue "Skow" ],
+                [ :fieldName "lastName"; :fieldValue "Knuckles" ],
+                [ :fieldName "postalCode"; :fieldValue "65880-2056" ],
+                [ :fieldName "phoneNumber"; :fieldValue <tel:+1-614-347-3251> ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "patient"; :fieldValue "cdd8c3c4-f776-4a2a-b688-506667bb2708" ],
+                [ :fieldName "mrn"; :fieldValue "8030921" ],
+                [ :fieldName "asab"; :fieldValue "Male" ],
+                [ :fieldName "maritalStatus"; :fieldValue "WIDOWED" ],
+                [ :fieldName "firstName"; :fieldValue "Engles" ],
+                [ :fieldName "lastName"; :fieldValue "Godbout" ],
+                [ :fieldName "postalCode"; :fieldValue "45348-3798" ],
+                [ :fieldName "phoneNumber"; :fieldValue <tel:+1-216-978-2800> ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "patient"; :fieldValue "ee0f958b-59bf-4d1a-8c8a-ce5fcea1512c" ],
+                [ :fieldName "mrn"; :fieldValue "3840445" ],
+                [ :fieldName "asab"; :fieldValue "Male" ],
+                [ :fieldName "maritalStatus"; :fieldValue "LEGALLY SEPARATED" ],
+                [ :fieldName "firstName"; :fieldValue "Tokar" ],
+                [ :fieldName "lastName"; :fieldValue "Martine" ],
+                [ :fieldName "postalCode"; :fieldValue "37481-5315" ],
+                [ :fieldName "phoneNumber"; :fieldValue <tel:+1-216-250-9985> ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "patient"; :fieldValue "fc4a2045-765d-03aa-ae58-de49a83156d3" ],
+                [ :fieldName "mrn"; :fieldValue "1796112" ],
+                [ :fieldName "asab"; :fieldValue "Female" ],
+                [ :fieldName "maritalStatus"; :fieldValue "NEVER MARRIED" ],
+                [ :fieldName "firstName"; :fieldValue "Zumwalt" ],
+                [ :fieldName "lastName"; :fieldValue "Broad" ],
+                [ :fieldName "postalCode"; :fieldValue "55750-5838" ],
+                [ :fieldName "phoneNumber"; :fieldValue <tel:+1-410-003-5387> ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "patient"; :fieldValue "f5332c34-d21f-3768-8bc3-00634d75c979" ],
+                [ :fieldName "mrn"; :fieldValue "3801325" ],
+                [ :fieldName "asab"; :fieldValue "Male" ],
+                [ :fieldName "maritalStatus"; :fieldValue "MARRIED" ],
+                [ :fieldName "firstName"; :fieldValue "Cape" ],
+                [ :fieldName "lastName"; :fieldValue "Orzechowski" ],
+                [ :fieldName "postalCode"; :fieldValue "45623-1234" ],
+                [ :fieldName "phoneNumber"; :fieldValue <tel:+1-614-892-0438> ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "patient"; :fieldValue "e67343f8-e3eb-0041-82c4-758ae5990491" ],
+                [ :fieldName "mrn"; :fieldValue "1951609" ],
+                [ :fieldName "asab"; :fieldValue "Female" ],
+                [ :fieldName "maritalStatus"; :fieldValue "WIDOWED" ],
+                [ :fieldName "firstName"; :fieldValue "Guillen" ],
+                [ :fieldName "lastName"; :fieldValue "Barcelo" ],
+                [ :fieldName "postalCode"; :fieldValue "08730-6707" ],
+                [ :fieldName "phoneNumber"; :fieldValue <tel:+1-216-378-6175> ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "patient"; :fieldValue "b6d7ee07-e585-d40f-b824-8e9f113e84a1" ],
+                [ :fieldName "mrn"; :fieldValue "4388300" ],
+                [ :fieldName "asab"; :fieldValue "Female" ],
+                [ :fieldName "maritalStatus"; :fieldValue "WIDOWED" ],
+                [ :fieldName "firstName"; :fieldValue "Uyeda" ],
+                [ :fieldName "lastName"; :fieldValue "Nordquist" ],
+                [ :fieldName "postalCode"; :fieldValue "38367-4179" ],
+                [ :fieldName "phoneNumber"; :fieldValue <tel:+1-216-067-2659> ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "patient"; :fieldValue "d102f38a-4ed4-1a39-88da-89d18bbdc14d" ],
+                [ :fieldName "mrn"; :fieldValue "5663107" ],
+                [ :fieldName "asab"; :fieldValue "Male" ],
+                [ :fieldName "maritalStatus"; :fieldValue "NEVER MARRIED" ],
+                [ :fieldName "firstName"; :fieldValue "Springman" ],
+                [ :fieldName "lastName"; :fieldValue "Solano" ],
+                [ :fieldName "postalCode"; :fieldValue "81546-1283" ],
+                [ :fieldName "phoneNumber"; :fieldValue <tel:+1-330-096-5510> ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "patient"; :fieldValue "55403abb-c88a-8e63-8e55-01cc92299b92" ],
+                [ :fieldName "mrn"; :fieldValue "2918988" ],
+                [ :fieldName "asab"; :fieldValue "Female" ],
+                [ :fieldName "maritalStatus"; :fieldValue "WIDOWED" ],
+                [ :fieldName "firstName"; :fieldValue "Hoffner" ],
+                [ :fieldName "lastName"; :fieldValue "Peppers" ],
+                [ :fieldName "postalCode"; :fieldValue "44223-6203" ],
+                [ :fieldName "phoneNumber"; :fieldValue <tel:+1-410-870-0017> ] ] .

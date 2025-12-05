@@ -1,0 +1,131 @@
+@prefix : <https://openprovenance.org/ns/facet/sdc#> .
+@prefix pj: <https://openprovenance.org/ns/parajudica#> .
+@prefix base: <https://openprovenance.org/ns/facet/base#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix app: <https://example.org/medical#> .
+
+# Aggregated health data for research with k-anonymity >= 3
+# Only quasi-identifiers, no direct identifiers
+# Now includes internal UUID for record tracking (demonstrates different framework interpretations)
+app:AggregatedHealth a :Table ;
+  pj:hasTag base:Healthcare ;
+  pj:hasTag base:Individual ;
+  :declaresField [
+    :forFieldName "recordId" ;
+    :hasLabel base:InternalUUID  # Meaningless internal identifier for record tracking
+  ] ;
+  :declaresField [
+    :forFieldName "maritalStatus" ;
+    :hasLabel base:MaritalStatus
+  ] ;
+  :declaresField [
+    :forFieldName "postalCode" ;
+    :hasLabel base:ZipCode
+  ] ;
+  :declaresField [
+    :forFieldName "year" ;
+    :hasLabel base:Age  # Using Age as year cohort
+  ] ;
+  :declaresField [
+    :forFieldName "diagCode" ;
+    :hasLabel base:DiagnosisCode
+  ] ;
+  :hasRecords
+    # Cohort 1: Married, 92083, 1965, J09.X3 (3 records)
+    [ a :Record ;
+      :hasField [ :fieldName "recordId"; :fieldValue "8712e146-a736-48e6-b184-6ca3a9f9045b" ],
+                [ :fieldName "maritalStatus"; :fieldValue "Married" ],
+                [ :fieldName "postalCode"; :fieldValue "92083" ],
+                [ :fieldName "year"; :fieldValue "1965"^^xsd:integer ],
+                [ :fieldName "diagCode"; :fieldValue "J09.X3" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "recordId"; :fieldValue "48c9ac64-c37d-4f84-b032-b83c1eec55e7" ],
+                [ :fieldName "maritalStatus"; :fieldValue "Married" ],
+                [ :fieldName "postalCode"; :fieldValue "92083" ],
+                [ :fieldName "year"; :fieldValue "1965"^^xsd:integer ],
+                [ :fieldName "diagCode"; :fieldValue "J09.X3" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "recordId"; :fieldValue "e76e5ce2-1387-4167-9b7a-01b987867c87" ],
+                [ :fieldName "maritalStatus"; :fieldValue "Married" ],
+                [ :fieldName "postalCode"; :fieldValue "92083" ],
+                [ :fieldName "year"; :fieldValue "1965"^^xsd:integer ],
+                [ :fieldName "diagCode"; :fieldValue "J09.X3" ] ],
+    
+    # Cohort 2: Single, 45623, 1980, J21.0 (4 records)
+    [ a :Record ;
+      :hasField [ :fieldName "recordId"; :fieldValue "9736c251-c8bc-4995-9038-b80fbdaeb1ec" ],
+                [ :fieldName "maritalStatus"; :fieldValue "Single" ],
+                [ :fieldName "postalCode"; :fieldValue "45623" ],
+                [ :fieldName "year"; :fieldValue "1980"^^xsd:integer ],
+                [ :fieldName "diagCode"; :fieldValue "J21.0" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "recordId"; :fieldValue "95208c97-b1fb-4172-b3bc-a94fe8983405" ],
+                [ :fieldName "maritalStatus"; :fieldValue "Single" ],
+                [ :fieldName "postalCode"; :fieldValue "45623" ],
+                [ :fieldName "year"; :fieldValue "1980"^^xsd:integer ],
+                [ :fieldName "diagCode"; :fieldValue "J21.0" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "recordId"; :fieldValue "a5a03d72-6e1e-487f-a6e3-1f64179cd4fd" ],
+                [ :fieldName "maritalStatus"; :fieldValue "Single" ],
+                [ :fieldName "postalCode"; :fieldValue "45623" ],
+                [ :fieldName "year"; :fieldValue "1980"^^xsd:integer ],
+                [ :fieldName "diagCode"; :fieldValue "J21.0" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "recordId"; :fieldValue "5983bb3f-55f6-4f7a-984e-ec7c0704ecb6" ],
+                [ :fieldName "maritalStatus"; :fieldValue "Single" ],
+                [ :fieldName "postalCode"; :fieldValue "45623" ],
+                [ :fieldName "year"; :fieldValue "1980"^^xsd:integer ],
+                [ :fieldName "diagCode"; :fieldValue "J21.0" ] ],
+    
+    # Cohort 3: Divorced, 31402, 1975, J10.1 (3 records)
+    [ a :Record ;
+      :hasField [ :fieldName "recordId"; :fieldValue "263a9b62-e93c-44cf-a877-3041f696dcd7" ],
+                [ :fieldName "maritalStatus"; :fieldValue "Divorced" ],
+                [ :fieldName "postalCode"; :fieldValue "31402" ],
+                [ :fieldName "year"; :fieldValue "1975"^^xsd:integer ],
+                [ :fieldName "diagCode"; :fieldValue "J10.1" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "recordId"; :fieldValue "6f931533-73a7-4d60-be5c-8cc25ba39610" ],
+                [ :fieldName "maritalStatus"; :fieldValue "Divorced" ],
+                [ :fieldName "postalCode"; :fieldValue "31402" ],
+                [ :fieldName "year"; :fieldValue "1975"^^xsd:integer ],
+                [ :fieldName "diagCode"; :fieldValue "J10.1" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "recordId"; :fieldValue "82dfbf2d-94f4-4aab-9934-3aa2ac3e7480" ],
+                [ :fieldName "maritalStatus"; :fieldValue "Divorced" ],
+                [ :fieldName "postalCode"; :fieldValue "31402" ],
+                [ :fieldName "year"; :fieldValue "1975"^^xsd:integer ],
+                [ :fieldName "diagCode"; :fieldValue "J10.1" ] ],
+    
+    # Cohort 4: Married, 62245, 1970, Z23 (5 records)
+    [ a :Record ;
+      :hasField [ :fieldName "recordId"; :fieldValue "37124a1a-0149-466e-ac9c-31f7a0f24212" ],
+                [ :fieldName "maritalStatus"; :fieldValue "Married" ],
+                [ :fieldName "postalCode"; :fieldValue "62245" ],
+                [ :fieldName "year"; :fieldValue "1970"^^xsd:integer ],
+                [ :fieldName "diagCode"; :fieldValue "Z23" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "recordId"; :fieldValue "294905ec-06d4-44e6-b0f7-666d70703d04" ],
+                [ :fieldName "maritalStatus"; :fieldValue "Married" ],
+                [ :fieldName "postalCode"; :fieldValue "62245" ],
+                [ :fieldName "year"; :fieldValue "1970"^^xsd:integer ],
+                [ :fieldName "diagCode"; :fieldValue "Z23" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "recordId"; :fieldValue "5f2cc699-88a8-42c4-9330-53121227ef43" ],
+                [ :fieldName "maritalStatus"; :fieldValue "Married" ],
+                [ :fieldName "postalCode"; :fieldValue "62245" ],
+                [ :fieldName "year"; :fieldValue "1970"^^xsd:integer ],
+                [ :fieldName "diagCode"; :fieldValue "Z23" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "recordId"; :fieldValue "cc45b3b9-0820-493a-ab0f-2c935d749829" ],
+                [ :fieldName "maritalStatus"; :fieldValue "Married" ],
+                [ :fieldName "postalCode"; :fieldValue "62245" ],
+                [ :fieldName "year"; :fieldValue "1970"^^xsd:integer ],
+                [ :fieldName "diagCode"; :fieldValue "Z23" ] ],
+    [ a :Record ;
+      :hasField [ :fieldName "recordId"; :fieldValue "2b1b2734-397c-4447-bc1b-4735c98cf2ae" ],
+                [ :fieldName "maritalStatus"; :fieldValue "Married" ],
+                [ :fieldName "postalCode"; :fieldValue "62245" ],
+                [ :fieldName "year"; :fieldValue "1970"^^xsd:integer ],
+                [ :fieldName "diagCode"; :fieldValue "Z23" ] ] .

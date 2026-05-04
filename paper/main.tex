@@ -1,6 +1,8 @@
-\documentclass{IOS-Book-Article}
+\documentclass[runningheads,oneside]{llncs}
 
-\usepackage{mathptmx}
+% Trim page to LNCS royal-octavo size (152 x 235 mm) while preserving
+% LNCS text block (122 x 193 mm) -- otherwise geometry recomputes margins.
+\usepackage[paperwidth=152mm,paperheight=235mm,textwidth=122mm,textheight=193mm,centering]{geometry}
 
 % Additional packages needed for the paper
 \usepackage{tikz}
@@ -14,14 +16,16 @@
 \usepackage{url}       % For URLs in bibliography
 \usepackage{subcaption} % For subfigures
 
-% IOS Press template handles spacing
 \sloppy  % More aggressive than \tolerance alone
 
-% Theorem environments
-\newtheorem{theorem}{Theorem}[section]
+% Tighten vertical spacing around floats (LNCS defaults are generous)
+\setlength{\textfloatsep}{8pt plus 2pt minus 4pt}
+\setlength{\intextsep}{8pt plus 2pt minus 2pt}
+\setlength{\floatsep}{8pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{4pt}
+\setlength{\belowcaptionskip}{0pt}
 
-% Proof environment (if not provided by IOS template)
-\newenvironment{proof}[1][Proof]{\textbf{#1.} }{\hfill$\square$\par}
+% theorem and proof environments are provided by llncs
 
 \newcommand{\ttl}[1]{\texttt{:{#1}}}
 \newcommand{\model}[1]{\texttt{#1}}
@@ -52,37 +56,29 @@
 
 \begin{document}
 
-\pagestyle{headings}
-\begin{frontmatter}
+\title{Parajudica: A Metamodel and RDF/SPARQL-Based Reasoning System for Context-Dependent Data Compliance Assessments}
+\titlerunning{Parajudica: A Reasoning System for Data Compliance Assessments}
 
-\title{Parajudica: An RDF-Based Reasoner and Metamodel for Multi-Framework Context-Dependent Data Compliance Assessments}
-\runningtitle{Parajudica: A Reasoner for Data Compliance Assessments}
+\author{Luc Moreau\inst{1} \and Alfred Rossi\inst{2} \and Sophie Stalla-Bourdillon\inst{3}}
+\authorrunning{L. Moreau et al.}
 
-\author[A]{\fnms{Luc} \snm{Moreau}},
-\author[B]{\fnms{Alfred} \snm{Rossi}}
-and
-\author[C]{\fnms{Sophie} \snm{Stalla-Bourdillon}}
+\institute{University of Sussex, Brighton, United Kingdom \and
+  Immuta Research, Boston, Massachusetts, USA \and
+  Brussels Privacy Hub, Vrije Universiteit Brussel, Brussels, Belgium}
 
-\runningauthor{L. Moreau, A. Rossi, S. Stalla-Bourdillon}
-\address[A]{University of Sussex, Brighton, United Kingdom}
-\address[B]{Immuta Research, Boston, Massachusetts, USA}
-\address[C]{Brussels Privacy Hub, Vrije Universiteit Brussel, Brussels, Belgium}
+\maketitle
 
 \begin{abstract}
 Motivated by the challenges of implementing policy-based data access control (PBAC) under multiple simultaneously applicable compliance frameworks, we present Parajudica, an open, modular, and extensible RDF/SPARQL-based rule system for evaluating context-dependent data compliance status. We demonstrate the utility of this resource and accompanying metamodel through application to existing legal frameworks and industry standards, offering insights for comparative framework analysis. Applications include compliance policy enforcement, compliance monitoring, data discovery, and risk assessment.
+
+\keywords{data governance \and compliance management \and privacy frameworks \and semantic web \and first-order logic}
 \end{abstract}
 
-\begin{keyword}
-data governance\sep compliance management\sep privacy frameworks\sep semantic web\sep first-order logic
-\end{keyword}
-
-\bigskip
+\medskip
 \noindent\textbf{Type:} RDF-Based Compliance Reasoner\\
 \textbf{License:} CC-BY-4.0\\
 \textbf{DOI:} \url{https://doi.org/10.5281/zenodo.17825090}\\
 \textbf{Repository:} \url{https://github.com/alfredr/parajudica}
-
-\end{frontmatter}
 
 \section{Introduction}\label{sec:introduction}
 
@@ -150,7 +146,6 @@ $k < 3$ & $\times$ & $\times$ & $\times$ \\
 \caption{Regulatory suitability of public release of $k$-anonymized datasets (with random record identifiers) under HIPAA Expert Determination, EMA Policy 0070 guidance, and Italian DPA interpretation of GDPR.}
 \label{tab:regulatory-divergence}
 \end{table}
-\vspace{-\baselineskip}
 
 \paragraph{Compliance Challenges.}
 From the preceding discussion we distill five challenges to compliance assessment:
@@ -284,7 +279,6 @@ The \facet{Identifier} facet derives types by combining \clabel{Cardinality} (\c
 \caption{Identifier classifications derived from orthogonal properties.}
 \label{tab:identifier-derivation}
 \end{table}
-\vspace{-\baselineskip}
 
 \paragraph{HIPAA.}
 This framework extends the Base \facet{Control} facet to implement the Privacy Rule, introducing concepts centered on Protected Health Information (PHI). It applies expansive propagation: \emph{inward} (to contained fields), \emph{outward} (containers containing PHI are themselves classified as PHI), \emph{peer} (to sibling containers), and \emph{joinable} (to related data). Healthcare data becomes PHI through conditional implication: any container labeled \clabel{Healthcare} that contains either \clabel{HIPAAIdentifier} or \clabel{ProtectedHealthInformation} receives PHI status.
@@ -348,7 +342,7 @@ Two sub-frameworks define de-identification pathways. \emph{Safe Harbor} removes
   ] .
 \end{lstlisting}
 \end{minipage}
-\caption{HIPAA de-identification frameworks.\footnotemark\ Safe Harbor (left) maps 18 identifier types to SafeHarborIdentifier. Expert Determination (right) flags high re-identification risk when $k < 3$.}
+\caption[HIPAA de-identification frameworks]{HIPAA de-identification frameworks.\protect\footnotemark\ Safe Harbor (left) maps 18 identifier types to SafeHarborIdentifier. Expert Determination (right) flags high re-identification risk when $k < 3$.}
 \label{fig:hipaa-deid}
 \end{figure}
 \footnotetext{Throughout, code listings abbreviate the \texttt{pj:} (Parajudica) namespace as \texttt{:} and \texttt{base:} as \texttt{b:}.}
@@ -511,12 +505,12 @@ R=\bigcup_{f\in F}R_f.
 For a framework $f \in F$, $R_f$ partitions into \begin{enumerate*}[label=(\roman*)] \item simple rules $R_f^s\subseteq L\times L$ of the form $l_1\to l_2$, \item conditional rules $R_f^c\subseteq L\times\Gamma\times L$ of the form $l_1\xrightarrow{\phi} l_2$, \item pure implication rules $R_f^p\subseteq\Gamma\times L$ of the form $\phi\Rightarrow l$, and \item propagation rules $R_f^t\subseteq\{\textsf{child},\textsf{parent},\textsf{sib},\textsf{joinable}\}\times L$ of the form $(\sigma,l)$.\end{enumerate*} One-step derivability $A\vdash\tau$ is given by:
 \[
 \footnotesize
-\frac{l_1\in[d]_g,\ (l_1\to l_2)\in R_f^s}{A\vdash(d,l_2,g,f)}\quad
-\frac{l_1\in[d]_g,\ (l_1\xrightarrow{\phi} l_2)\in R_f^c,\ \phi(d,g)}{A\vdash(d,l_2,g,f)}\quad
-\frac{(\phi\Rightarrow l)\in R_f^p,\ \phi(d,g)}{A\vdash(d,l,g,f)}
+\frac{l_1\in[d]_g,\ (l_1\to l_2)\in R_f^s}{A\vdash(d,l_2,g,f)}\qquad
+\frac{l_1\in[d]_g,\ (l_1\xrightarrow{\phi} l_2)\in R_f^c,\ \phi(d,g)}{A\vdash(d,l_2,g,f)}
 \]
 \[
-\small
+\footnotesize
+\frac{(\phi\Rightarrow l)\in R_f^p,\ \phi(d,g)}{A\vdash(d,l,g,f)}\qquad
 \frac{l\in_f[d_1]_g,\ \sigma(d_1,d_2),\ (\sigma,l)\in R_f^t}{A\vdash(d_2,l,g,f)}.
 \]
 The condition language $\Gamma$ is closed under $\land,\lor$, generated by atoms $\textsf{HasLabel}_{\sigma,l}(d,g)$ (defined as $\exists d'\,(\sigma(d',d)\wedge l\in[d']_g)$ for $l\in L$ and $\sigma\in\{\textsf{id},\textsf{child},\textsf{parent},\textsf{desc},\textsf{sib}\}$) and what amounts to extensional predicates $\textsf{P}(d,g)\in\mathcal{P}$. Here, $\mathcal{P}$ is a fixed finite set of base predicates from the environment.
@@ -529,10 +523,11 @@ Table~\ref{tab:rdf-mapping} shows how the formal structures map to their RDF imp
 
 \begin{table}[ht]
 \centering
-\small
 \setlength{\tabcolsep}{3pt}
 \renewcommand{\arraystretch}{0.85}
-\begin{tabular}{@{}rl@{\hspace{0.5cm}}rl@{}}
+\resizebox{\textwidth}{!}{%
+\small
+\begin{tabular}{@{}rl@{\hspace{0.4cm}}rl@{}}
 \toprule
 \multicolumn{2}{c}{\textbf{Primary Structures}} & \multicolumn{2}{c}{\textbf{Rule-Supporting Structures}} \\
 \midrule
@@ -546,7 +541,7 @@ $d_1 \sqsubset d_2$ & {\footnotesize\texttt{d1 :contains d2}} & Rule declaration
 $d_1 \bowtie d_2$ & {\footnotesize\texttt{d1 :joinableWith d2}} & & \fnsym{ConditionalEquivalence} \\
 $(d,l,g,f) \in A$ & RDF assertions (Figure~\ref{fig:rdf-structures}) & & \fnsym{PropagationDeclaration} \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \caption{Mapping from formal model to RDF implementation.}
 \label{tab:rdf-mapping}
 \end{table}
@@ -674,7 +669,8 @@ At initialization, the engine discovers frameworks via manifest files, loading t
 
 \begin{figure}[ht]
 \centering
-\begin{minipage}[t]{0.50\textwidth}
+\begin{minipage}[t]{0.47\textwidth}
+\vspace{0pt}
 \begin{lstlisting}[basicstyle=\ttfamily\scriptsize, frame=none]
 [InheritPropagationRules:
   (?C :extends ?P)
@@ -685,7 +681,9 @@ At initialization, the engine discovers frameworks via manifest files, loading t
 ]
 \end{lstlisting}
 \end{minipage}%
-\begin{minipage}[t]{0.50\textwidth}
+\hspace{0.3em}\textcolor{gray!50}{\vrule}\hspace{0.3em}%
+\begin{minipage}[t]{0.47\textwidth}
+\vspace{0pt}
 \begin{lstlisting}[basicstyle=\ttfamily\scriptsize, frame=none, language=SPARQL]
 CONSTRUCT
   { ?C :hasPropagationRule ?R }
@@ -802,7 +800,7 @@ Against this backdrop, we introduced Parajudica, a metamodel for multi-framework
 
 Future work includes temporal reasoning for evolving states (including condition removal), PROV-O integration for audit trails, and comparative analysis to identify approaches spanning multiple frameworks. Logical extensions such as FO-LTL could verify compliance properties over time, while encoding jurisdictional variation suggests applications in international governance. Overall, the metamodel provides a foundation for transparent data annotation and systematic evaluation of compliance status, in line with ISO recommendations~\cite{iso19944,iso38505,iso27001}.
 
-\bibliographystyle{vancouver}
+\bibliographystyle{splncs04}
 \bibliography{refs}
 
 \end{document}

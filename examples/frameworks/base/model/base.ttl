@@ -8,7 +8,7 @@
 
 
 :BaseFramework a pj:Framework ;
-    pj:hasFacet :Subject, :Control, :Domain, :Kind, :Identifier, :Statistical ;
+    pj:hasFacet :Subject, :Control, :Domain, :Kind, :IdentifierFacet, :Statistical ;
     pj:hasPropagationRule [
         a pj:PropagationRule ;
         pj:propagatesFacet :Type ;
@@ -82,7 +82,7 @@
         # Identifiability labels
         :Identifiable .  # Data that can be linked to individuals
 
-:Identifier a pj:Facet ;
+:IdentifierFacet a pj:Facet ;
     pj:introducedByFramework :BaseFramework ;
     rdfs:comment "Facet for how data functions as identifiers - orthogonal to semantic type" ;
     pj:hasSubfacet :Cardinality, :Knowability ;  # Subfacets for orthogonal properties
@@ -95,24 +95,24 @@
 
 
 :Identifier a pj:ComplianceLabel ;
-    pj:belongsToFacet :Identifier ;
+    pj:belongsToFacet :IdentifierFacet ;
     pj:introducedByFramework :BaseFramework ;
     rdfs:comment "Parent class for all identifier types in Identifier facet" .
 
 :DirectIdentifier a pj:ComplianceLabel ;
-    pj:belongsToFacet :Identifier ;
+    pj:belongsToFacet :IdentifierFacet ;
     pj:introducedByFramework :BaseFramework ;
     rdfs:subClassOf :Identifier ;
     rdfs:comment "Directly identifies individuals (e.g., name, SSN)" .
 
 :IndirectIdentifier a pj:ComplianceLabel ;
-    pj:belongsToFacet :Identifier ;
+    pj:belongsToFacet :IdentifierFacet ;
     pj:introducedByFramework :BaseFramework ;
     rdfs:subClassOf :Identifier ;
     rdfs:comment "Quasi-identifiers that could identify when combined (for k-anonymity)" .
 
 :InternalIdentifier a pj:ComplianceLabel ;
-    pj:belongsToFacet :Identifier ;
+    pj:belongsToFacet :IdentifierFacet ;
     pj:introducedByFramework :BaseFramework ;
     rdfs:subClassOf :Identifier ;
     rdfs:comment "Internal processing identifier - ephemeral, one-time use identifier" .

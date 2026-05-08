@@ -3,8 +3,11 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-# Evaluate implications with fromAllLabels that have conditions
-# If all required source labels are present IN THE SAME SCOPE, conditions are met, and target doesn't exist, assert the target label
+# Evaluate ConditionalImplications with fromAllLabels.
+# Fires when (a) all required labels are present in the container in scope and
+# (b) the condition has a true ConditionEvaluation in that container/scope.
+# Composite and atomic conditions both produce ConditionEvaluations via their
+# dedicated evaluators, so this query is condition-type-agnostic.
 
 CONSTRUCT {
     ?newAssertion a pj:ComplianceAssertion ;
@@ -15,95 +18,41 @@ CONSTRUCT {
                   pj:derivedVia pj:ImplicationFromAllRule .
 }
 WHERE {
-    # Find implications with fromAllLabels that have conditions
     ?framework pj:declaresImplication ?impl .
     ?impl a pj:ConditionalImplication ;
           pj:fromAllLabels ?fromLabels ;
           pj:toLabel ?toLabel ;
           pj:hasCondition ?condition .
 
-    # Find containers and scopes where target doesn't already exist
-    ?someAssertion a pj:ComplianceAssertion ;
-                   pj:assertedOn ?container ;
-                   pj:assertedInScope ?scope .
-
-    FILTER NOT EXISTS {
-        ?existing a pj:ComplianceAssertion ;
-                 pj:assertedOn ?container ;
-                 pj:assertedInScope ?scope ;
-                 pj:assertsLabel ?toLabel .
-    }
-
-    # Count how many labels are in the fromAllLabels list
     {
-        SELECT ?impl (COUNT(?requiredLabel) AS ?requiredCount)
+        SELECT ?impl (COUNT(?reqLabel) AS ?reqCount)
         WHERE {
-            ?impl pj:fromAllLabels ?fromLabels .
-            ?fromLabels rdf:rest*/rdf:first ?requiredLabel .
-        }
-        GROUP BY ?impl
+            ?impl pj:fromAllLabels ?fl .
+            ?fl rdf:rest*/rdf:first ?reqLabel .
+        } GROUP BY ?impl
     }
-
-    # Count how many of the required labels the container has IN THIS SCOPE
     {
-        SELECT ?container ?scope ?impl (COUNT(DISTINCT ?presentLabel) AS ?presentCount)
+        SELECT ?impl ?container ?scope (COUNT(DISTINCT ?present) AS ?presentCount)
         WHERE {
-            ?impl pj:fromAllLabels ?fromLabels .
-            ?fromLabels rdf:rest*/rdf:first ?requiredLabel .
-            ?container pj:hasLabelInScope ?labelScope .
-            ?labelScope pj:label ?requiredLabel ;
-                       pj:scope ?scope .
-            BIND(?requiredLabel AS ?presentLabel)
-        }
-        GROUP BY ?container ?scope ?impl
+            ?impl pj:fromAllLabels ?fl .
+            ?fl rdf:rest*/rdf:first ?reqLabel .
+            ?container pj:hasLabelInScope ?ls .
+            ?ls pj:label ?reqLabel ; pj:scope ?scope .
+            BIND(?reqLabel AS ?present)
+        } GROUP BY ?impl ?container ?scope
     }
+    FILTER(?presentCount >= ?reqCount && ?reqCount > 0)
 
-    # Only proceed if all required labels are present
-    FILTER(?presentCount >= ?requiredCount && ?requiredCount > 0)
+    ?eval a pj:ConditionEvaluation ;
+          pj:evaluatesCondition ?condition ;
+          pj:evaluatedOn ?container ;
+          pj:evaluatedInScope ?scope ;
+          pj:evaluationResult "true"^^xsd:boolean .
 
-    # Check conditions using ConditionEvaluation (evaluated by separate queries with scope awareness)
-    {
-        # RelationLabelCondition: Use pre-evaluated condition results
-        ?condition a pj:RelationLabelCondition .
-        ?eval a pj:ConditionEvaluation ;
-              pj:evaluatesCondition ?condition ;
-              pj:evaluatedOn ?container ;
-              pj:evaluatedInScope ?scope ;
-              pj:evaluationResult "true"^^xsd:boolean .
-    } UNION {
-        # ContainsLabelCondition: Use pre-evaluated condition results
-        ?condition a pj:ContainsLabelCondition .
-        ?eval a pj:ConditionEvaluation ;
-              pj:evaluatesCondition ?condition ;
-              pj:evaluatedOn ?container ;
-              pj:evaluatedInScope ?scope ;
-              pj:evaluationResult "true"^^xsd:boolean .
-    } UNION {
-        # CompositeCondition with AND: All sub-conditions must be met
-        ?condition a pj:CompositeCondition ;
-                   pj:logicalOperator pj:AND ;
-                   pj:hasCondition ?subCondition .
-
-        # This is simplified - in practice would need recursive evaluation
-        # For now, assume sub-conditions are already evaluated
-        FILTER EXISTS {
-            # Check each sub-condition is satisfied
-            ?subCondition a ?subCondType .
-        }
-    } UNION {
-        # CompositeCondition with OR: At least one sub-condition must be met
-        ?condition a pj:CompositeCondition ;
-                   pj:logicalOperator pj:OR ;
-                   pj:hasCondition ?subCondition .
-
-        # This is simplified - in practice would need recursive evaluation
-        FILTER EXISTS {
-            # Check at least one sub-condition is satisfied
-            ?subCondition a ?subCondType .
-        }
-    } UNION {
-        # ComparisonCondition: Already evaluated by comparison/evaluation.rq
-        ?condition a pj:ComparisonCondition .
-        ?condition pj:evaluationResult true .
-    }
+    BIND(IRI(CONCAT("urn:skolem:from-all:",
+                    ENCODE_FOR_URI(STR(?container)), "_",
+                    ENCODE_FOR_URI(STR(?toLabel)), "_",
+                    ENCODE_FOR_URI(STR(?framework)), "_",
+                    ENCODE_FOR_URI(STR(?scope)))) AS ?newAssertion)
+    FILTER NOT EXISTS { ?newAssertion a pj:ComplianceAssertion }
 }

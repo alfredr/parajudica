@@ -26,6 +26,7 @@ constructs = [
     "constructs/containment/propagate.rq",
     # Marking phase - mark conditions that need evaluation
     "constructs/conditions/composite/mark/conditional-implication.rq",
+    "constructs/conditions/composite/mark/conditional-implication-from-all.rq",
     "constructs/conditions/composite/mark/subconditions.rq",
     # Condition evaluation phase
     # TODO: Delete counting.rq file later - removed from here but kept for testing

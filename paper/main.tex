@@ -106,6 +106,8 @@ Determining the permissibility of a data processing activity is an inherently co
 
 Determining the compliance status of the data itself is often an important first step, as access policies typically depend on these classifications~\cite{xacml,nist-sp-800-95,nist-ir-7657}. However, complicating matters, healthcare offers a stark illustration: the exact same dataset of patient records is classified as Protected Health Information (PHI) under the U.S. Health Insurance Portability and Accountability Act (HIPAA)~\cite{hipaa-privacy} when processed by a covered entity, but as special category personal data under the European General Data Protection Regulation (GDPR)~\cite{gdpr}. While data considered de-identified under either of HIPAA's regulatory standards for de-identification (safe harbor or expert determination) statutorily falls outside of HIPAA's scope, it may remain controlled as anything from anonymized data to special category personal data under the GDPR depending upon the exact details. In short, compliance status is context-dependent.
 
+The extent of data transformation required to achieve anonymization remains the subject of significant debate within the compliance community. The Digital Omnibus~\cite{digital_omnibus} in the European Union (EU) has once again brought the distinction between personal and non-personal data to the forefront of regulatory debate. Such debate suggests not only that the categorisation of data continues to present significant operational challenges, but also that the purpose-oriented dimension embedded in data protection law remains insufficiently understood.
+
 Structured data further complicates this task. A dataset containing only diagnosis, gender, and age information with a randomly assigned record identifier might be considered suitable for public release; yet if other datasets reuse the same identifier while adding additional demographic details, the released information may not be considered de-identified. The availability of identifiers, therefore, must be considered, as their presence or availability may drastically change the data compliance status.
 
 % Organizations have their own interpretation
@@ -117,7 +119,7 @@ Before presenting our approach, we define three central terms used throughout th
 \paragraph{Approach.}
 To address these challenges, we formulate compliance assessment of structured data as a computational problem: propagating semantic annotations through data structures and across relationships. Data containers (databases, tables, columns) are organized hierarchically, and compliance labels propagate according to framework-specific rules: inward to contained elements, outward to containers, among peers, or across joinable relationships. Parajudica is implemented in RDF, adding to a rich tradition of established use in adjacent areas of privacy vocabularies (DPV~\cite{pandit2019dpv}), policy languages (ODRL~\cite{odrl-model-2018,odrl-vocab-2018}), and data governance initiatives~\cite{bader2020}. These existing efforts catalog compliance concepts but assume the labels they describe are pre-assigned by a human; they do not derive how a classification shifts with governance scope, joinable relationships, or applicable framework. Parajudica targets this gap: classifications are computed rather than declared, from the structure of the data and the rules of each framework.
 
-Our approach is complementary to normative reasoning systems that resolve conflicts by imposing superiority relations on rules. In defeasible deontic logic (DDL), the goal is to determine whether a normative statement holds after resolving conflicts and exceptions \emph{within a single normative system}. Our problem is different: multiple internally coherent compliance interpretations (e.g., HIPAA and GDPR) may each classify the same dataset differently, and they coexist without a shared authority to adjudicate between them. Concretely, if authority $A$ classifies a field as $L_1$ and authority $B$ classifies it as $L_2$, no legitimate meta-rule determines which prevails, since any resolution would be rejected by at least one authority. Our metamodel therefore retains divergent classifications as parallel outputs across frameworks. Each framework's derivations remain locally monotonic (a least fixed point within its own rules), while incompatibilities only surface when comparing across frameworks.
+Our approach is complementary to normative reasoning systems that resolve conflicts by imposing superiority relations on rules. In defeasible deontic logic (DDL), the goal is to determine whether a normative statement holds after resolving conflicts and exceptions \emph{within a single normative system}. Our problem is different: multiple internally coherent compliance interpretations (e.g., HIPAA and GDPR) may each classify the same dataset differently, and they coexist without a shared authority to adjudicate between them. Concretely, if authority $A$ classifies a field as $L_1$ and authority $B$ classifies it as $L_2$, no legitimate meta-rule determines which prevails, since any resolution would be rejected by at least one authority. Our metamodel therefore retains divergent classifications as parallel outputs across frameworks and diverging interpretations thereof. Each framework's derivations remain locally monotonic (a least fixed point within its own rules), while incompatibilities only surface when comparing across frameworks.
 
 \paragraph{Limitations.}
 Local monotonicity prevents modeling mutually canceling conditions, a tradeoff we accept in exchange for tractability. To demonstrate that practical utility remains, we model and recreate real-world compliance challenges involving divergent interpretations and cross-framework interdependencies.
@@ -134,13 +136,13 @@ The remainder of this paper is structured as follows. Section~\ref{sec:legal} id
 This context-dependent nature of compliance assessment defeats static annotation approaches, which cannot capture the situational nuances of the broader compliance environment. To illustrate these challenges, we turn to healthcare, where organizations must reconcile multiple frameworks with conflicting requirements.
 
 \paragraph{HIPAA.}
-The Health Insurance Portability and Accountability Act (HIPAA)~\cite{hipaa-privacy} operates as a binary switch: data is either Protected Health Information (PHI), subject to all regulatory requirements, or entirely outside its scope, as in the case of de-identified data. A common interpretation extends PHI status transitively, such that any data joined to the patient record becomes part of the patient’s \emph{designated record set}~\cite{hipaa-privacy}. Yet HIPAA’s scope is context-dependent, and identical data may be regulated or not depending on its system of record and purpose. For example, employee vaccination records are excluded when maintained for workplace safety\footnote{Employee records are excluded from the definition of PHI as per 45 C.F.R. § 160.103.}, but become PHI when entered into clinical systems. Similarly, Social Security numbers must be removed from patient record extracts before they can be considered de-identified, yet their presence in employee records does not trigger HIPAA protections, even when the employer is a clinic and the employee is also a patient.
+The Health Insurance Portability and Accountability Act (HIPAA)~\cite{hipaa-privacy} operates as a binary switch: data is either Protected Health Information (PHI), subject to all regulatory requirements, or entirely outside its scope, as in the case of de-identified data. A common interpretation extends PHI status transitively, such that any data joined to the patient record becomes part of the patient’s \emph{designated record set}~\cite{hipaa-privacy}. Yet HIPAA’s scope is context-dependent, and identical data may be regulated or not depending on its system of record and purpose. For example, employee vaccination records are excluded when maintained for workplace safety\footnote{Employee records are excluded from the definition of PHI as per 45 C.F.R. § 160.103.}, but become PHI when entered into clinical systems. Similarly, Social Security Numbers (SSNs) must be removed from patient record extracts before they can be considered de-identified, yet their presence in employee records does not trigger HIPAA protections, even when the employer is a clinic and the employee is also a patient.
 
 
 \paragraph{GDPR.}
-The General Data Protection Regulation (GDPR)~\cite{gdpr} takes a different stance. Rather than closure through joins, GDPR distinguishes data \emph{identifying} individuals from data merely \emph{about} them. Removing identifiers may render data anonymous, though regulators disagree on whether anonymization is achievable~\cite{stalla_rossi_2021,stalla_2025,srb}. Within GDPR, interpretations themselves diverge: the European Medicines Agency (EMA) permits disclosure when the re-identification probability falls below 0.09~\cite{ema_external_guidance_2016,ema_external_guidance_2025}, while the Italian Data Protection Authority (DPA), drawing on Article 29 Working Party guidance~\cite{wp29-anonymization}, rejects singling out altogether: datasets remain personal data whenever unique identifiers enable individual distinction, regardless of actual re-identification risk~\cite{italian-thin-2023}.
+The General Data Protection Regulation (GDPR)~\cite{gdpr} takes a different stance. Rather than closure through joins, GDPR distinguishes data \emph{identifying} individuals from data merely \emph{about} them. Removing identifiers may render data anonymous, though regulators disagree on whether anonymization is achievable~\cite{stalla_rossi_2021,stalla_2025} and Court of Justice of the European Union case law~\cite{srb} continues to trigger debate~\cite{stalla_2025b}. Within GDPR, interpretations themselves diverge: the European Medicines Agency (EMA)\footnote{EMA is not a supervisory authority in the sense of the GDPR.} permits disclosure when the re-identification probability falls below 0.09~\cite{ema_external_guidance_2016,ema_external_guidance_2025}, while the Italian Data Protection Authority (DPA), drawing on Article 29 Working Party guidance~\cite{wp29-anonymization}, appears to reject singling out altogether: datasets remain personal data whenever unique identifiers enable individual distinction, regardless of actual re-identification risk~\cite{italian-thin-2023}.
 
-Concretely, when a clinic joins employee vaccination records with patient treatment records, HIPAA's transitive approach makes the entire dataset PHI, while under GDPR only the vaccination information qualifies as special category health data and employee identifiers retain their original classification~\cite{lindenapotheke}. The same divergence shows up in \emph{k-anonymization}, which ensures each record is indistinguishable from at least $k-1$ others with respect to quasi-identifiers: a $k$-anonymized release is suitable under HIPAA Expert Determination (45 C.F.R. § 164.514(b)(1)), conditionally acceptable under EMA Policy 0070~\cite{ema-policy0070,ema_external_guidance_2025} with $k \geq 12$, and always prohibited under the Italian DPA's interpretation~\cite{italian-thin-2023}.\footnote{HIPAA's ``very small'' risk standard is not numerical; $k=5$ is a common practitioner recommendation~\cite{ocr-deid-guidance,el-emam-2009}.}
+Concretely, when a clinic joins employee vaccination records with patient treatment records, HIPAA's transitive approach makes the entire dataset PHI. GDPR's position is contested: recent CJEU case law~\cite{lindenapotheke} has been read as endorsing partial transitivity (identifiers linked to special-category data acquiring that status by association), while other interpretations preserve field-level distinctions. Rather than take a side, our metamodel encodes either reading as a framework-specific propagation rule, making the divergence explicit and machine-checkable. The same divergence shows up in \emph{k-anonymization}, which ensures each record is indistinguishable from at least $k-1$ others with respect to quasi-identifiers: a $k$-anonymized release is suitable under HIPAA Expert Determination (45 C.F.R. § 164.514(b)(1)), conditionally acceptable under EMA Policy 0070~\cite{ema-policy0070,ema_external_guidance_2025} with $k \geq 12$, and always prohibited under the Italian DPA's interpretation~\cite{italian-thin-2023}.\footnote{HIPAA's ``very small'' risk standard is not numerical; $k=5$ is a common practitioner recommendation~\cite{ocr-deid-guidance,el-emam-2009}.}
 \begin{table}[ht]
 \centering
 \small
@@ -234,25 +236,33 @@ The \framework{Base} framework establishes a six-facet taxonomy: \facet{Subject}
 
 \begin{figure}[ht]
 \centering
-\begin{minipage}[c]{0.48\textwidth}
+\begin{minipage}[c]{0.51\textwidth}
 \centering
 \begin{tikzpicture}[dirtree]
-\node {:BaseFramework}
+\node (root) {:BaseFramework}
   child { node {:Subject}
     child { node {:Type} }
   }
   child { node {:IdentifierFacet}
     child { node {:Cardinality} }
     child { node {:Knowability} }
-  }
-  child { node {:Kind} }
-  child { node {:Domain} }
-  child { node {:Control} }
-  child { node {:Statistical} };
+  };
+
+% Left children: position so their east anchor sits to the LEFT of the shared spine
+\node[anchor=east, font=\scriptsize\ttfamily] (lkind)    at ($(root.south west) + (-0.35, -0.35)$) {:Kind};
+\node[anchor=east, font=\scriptsize\ttfamily] (ldomain)  at ($(lkind.east) + (0, -0.35)$) {:Domain};
+\node[anchor=east, font=\scriptsize\ttfamily] (lcontrol) at ($(ldomain.east) + (0, -0.35)$) {:Control};
+\node[anchor=east, font=\scriptsize\ttfamily] (lstat)    at ($(lcontrol.east) + (0, -0.35)$) {:Statistical};
+
+% Edges from the same shared spine ([xshift=10pt]root.south west) going LEFT to each left child
+\draw ([xshift=10pt]root.south west) |- (lkind.east);
+\draw ([xshift=10pt]root.south west) |- (ldomain.east);
+\draw ([xshift=10pt]root.south west) |- (lcontrol.east);
+\draw ([xshift=10pt]root.south west) |- (lstat.east);
 \end{tikzpicture}
 \end{minipage}%
 \hspace{0.5em}%
-\begin{minipage}[c]{0.50\textwidth}
+\begin{minipage}[c]{0.47\textwidth}
 \begin{lstlisting}[basicstyle=\ttfamily\scriptsize, frame=none]
 # Identifier derivation rule
 :BaseFramework :declaresEquivalent [
@@ -416,7 +426,7 @@ This framework distinguishes data \emph{about} individuals from data that \emph{
 \end{figure}
 
 \paragraph{Italian DPA.}
-The Italian DPA applies a stricter GDPR interpretation, treating \emph{any} unique information about individuals as personal data. While GDPR requires both cardinality and knowability for identifiability, the Italian DPA considers uniqueness alone sufficient (Figure~\ref{fig:italian-dpa}). Thus internal UUIDs with \clabel{ClosedKnowability} become \clabel{PersonalData} under Italian rules.
+The Italian DPA applies a stricter GDPR interpretation, treating \emph{any} unique information about individuals as personal data. While GDPR requires both cardinality and knowability for identifiability, the Italian DPA considers uniqueness alone sufficient. Thus internal UUIDs with \clabel{ClosedKnowability} become \clabel{PersonalData} under Italian rules.
 
 \section{Validation}\label{sec:validation}
 
@@ -658,7 +668,7 @@ At initialization, the engine discovers frameworks via manifest files, loading t
 
 \begin{figure}[ht]
 \centering
-\begin{minipage}[t]{0.47\textwidth}
+\begin{minipage}[t]{0.40\textwidth}
 \vspace{0pt}
 \begin{lstlisting}[basicstyle=\ttfamily\tiny, frame=none]
 [InheritPropagationRules:
@@ -671,7 +681,7 @@ At initialization, the engine discovers frameworks via manifest files, loading t
 \end{lstlisting}
 \end{minipage}%
 \hspace{0.3em}\textcolor{gray!50}{\vrule}\hspace{0.3em}%
-\begin{minipage}[t]{0.47\textwidth}
+\begin{minipage}[t]{0.40\textwidth}
 \vspace{0pt}
 \begin{lstlisting}[basicstyle=\ttfamily\tiny, frame=none, language=SPARQL]
 CONSTRUCT
@@ -695,54 +705,6 @@ The engine loads TTL files in framework dependency order (internal metamodel, co
 The engine enters a fixed-point loop, executing all SPARQL CONSTRUCT queries (core and framework-declared) each round in dependency order. The loop terminates when a round produces no new triples, guaranteeing convergence per Theorem~\ref{thm:convergence}.
 
 The core metamodel ({\footnotesize\texttt{pj}}) provides constructs implementing the formal semantics from Section~\ref{sec:formalization}. These operations execute every round; the fixed-point loop applies them incrementally in six functional groups. \emph{Indexing} builds lookup structures (e.g., {\footnotesize\texttt{:hasLabelInScope}}) for efficient pattern matching. \emph{Expansion} transforms compact declarations into executable form: {\footnotesize\texttt{fromAnyLabel}} lists expand to individual rules, facet-level propagation rules expand to labels, and equivalences generate bidirectional implications. \emph{Materialization} pre-computes derived structures; containment assertions materialize ``container $C$ contains label $L$'' for efficient condition checking. \emph{Marking} identifies conditions requiring evaluation (when a triggering label exists but its target is absent), propagating marks through composite conditions. \emph{Evaluation} checks marked conditions: atomic conditions ({\footnotesize\texttt{Contains}}, {\footnotesize\texttt{Relation}}, {\footnotesize\texttt{Comparison}}) first, then composites (AND/OR), recording outcomes as {\footnotesize\texttt{:ConditionEvaluation}} triples. \emph{Derivation} fires implications and propagation rules based on condition outcomes, spreading labels \emph{inward}, \emph{outward}, among \emph{peers}, or across \emph{joinable} relationships according to framework-specific patterns.
-Figure~\ref{fig:and-condition} shows a composite AND condition query.
-
-\begin{figure}[ht]
-\centering
-\begin{minipage}[t]{0.46\textwidth}
-\vspace{0pt}
-\begin{lstlisting}[basicstyle=\ttfamily\scriptsize, frame=none]
-:ItalianDPAFramework a :Framework ;
-  :extends gdpr:GDPRFramework .
-
-:ItalianDPAFramework :declaresImplication [
-  a :ConditionalImplication ;
-  :fromLabel b:Individual ;
-  :toLabel gdpr:PersonalData ;
-  :hasCondition [
-    a :ContainsLabelCondition ;
-    :requiresContains b:UniqueCardinality
-  ]
-] .
-# ... and a symmetric rule on b:UniqueCardinality .
-\end{lstlisting}
-\end{minipage}%
-\hspace{0.3em}\textcolor{gray!50}{\vrule}\hspace{0.3em}%
-\begin{minipage}[t]{0.50\textwidth}
-\vspace{0pt}
-\begin{lstlisting}[basicstyle=\ttfamily\scriptsize, frame=none, xleftmargin=0.25cm]
-CONSTRUCT {
-  ?eval a :ConditionEvaluation ;
-    :evaluatesCondition ?andCond ; ... ;
-    :evaluationResult true .
-}
-WHERE {
-  ?mark a :ConditionMark ; :markedCondition ?andCond ;
-    ... ; :markedInScope ?g .
-  ?andCond :logicalOperator :AND .
-  BIND(IRI(CONCAT("urn:eval:and:", MD5(...))) AS ?eval)
-  FILTER NOT EXISTS { ?eval a :ConditionEvaluation }
-  MINUS {
-    ?andCond :hasCondition ?sub .
-    MINUS { ?se :evaluatesCondition ?sub ; ... ;
-            :evaluationResult true . }
-  }
-}
-\end{lstlisting}
-\end{minipage}
-\caption{(a)~Italian DPA Framework: uniqueness triggers personal data classification.\label{fig:italian-dpa} (b)~AND condition evaluation: a \texttt{:ConditionEvaluation} is asserted when no subcondition lacks a satisfied evaluation.\label{fig:and-condition}}
-\label{fig:code-examples}
-\end{figure}
 
 \paragraph{Optimization.}
 Deterministic URI generation prevents the duplicate derivations that SPARQL's fresh blank-node semantics would otherwise produce. The marking phase skips conditions whose outcomes are irrelevant. Pre-computed containment assertions eliminate recursive traversal during condition checking, and statistical analyses such as $k$-anonymity are implemented via SPARQL UPDATE queries.
@@ -755,6 +717,7 @@ Against this backdrop, we introduced Parajudica: a metamodel and reasoner for mu
 
 Future work includes temporal extensions (e.g., FO-LTL for compliance properties over evolving states with condition removal), PROV-O integration for audit trails~\cite{prov-o}, and comparative analysis across multi-framework deployments aligned with ISO governance recommendations~\cite{iso19944,iso38505,iso27001}.
 
+\newpage
 \bibliographystyle{splncs04}
 \bibliography{refs}
 

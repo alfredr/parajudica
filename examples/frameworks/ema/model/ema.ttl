@@ -1,11 +1,23 @@
-@prefix : <https://openprovenance.org/ns/facet/ema#> .
-@prefix pj: <https://openprovenance.org/ns/parajudica#> .
-@prefix base: <https://openprovenance.org/ns/facet/base#> .
-@prefix gdpr: <https://openprovenance.org/ns/facet/gdpr#> .
-@prefix ema: <https://openprovenance.org/ns/facet/ema#> .
+@prefix : <https://parajudica.org/ns/framework/ema#> .
+@prefix pj: <https://parajudica.org/ns#> .
+@prefix base: <https://parajudica.org/ns/framework/base#> .
+@prefix gdpr: <https://parajudica.org/ns/framework/gdpr#> .
+@prefix ema: <https://parajudica.org/ns/framework/ema#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix vann: <http://purl.org/vocab/vann/> .
+
+<https://parajudica.org/ns/framework/ema> a owl:Ontology ;
+    dcterms:title "Parajudica EMA Framework" ;
+    dcterms:creator "Luc Moreau", "Alfred Rossi", "Sophie Stalla-Bourdillon" ;
+    dcterms:license <https://creativecommons.org/licenses/by/4.0/> ;
+    dcterms:modified "2026-06-19"^^xsd:date ;
+    owl:versionInfo "1.0.0" ;
+    vann:preferredNamespacePrefix "ema" ;
+    vann:preferredNamespaceUri "https://parajudica.org/ns/framework/ema#" .
 
 ###############################################################################
 # European Medicines Agency (EMA) Framework

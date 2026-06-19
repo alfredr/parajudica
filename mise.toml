@@ -16,7 +16,7 @@ sync = "uv sync --all-groups"    # Alias for install
 
 # Development tasks
 test = "uv run pytest"
-test-cov = "uv run pytest --cov=inference --cov-report=term-missing"
+test-cov = "uv run pytest --cov=parajudica --cov-report=term-missing"
 lint = "uv run ruff check ."
 format = "uv run ruff format ."
 fix = "uv run ruff check --fix ."
@@ -35,8 +35,13 @@ build-sdist = "uv build --sdist"
 build-wheel = "uv build --wheel"
 
 # Run the inference CLI
-run = "uv run python -m inference.cli"
+run = "uv run python -m parajudica.cli"
 cli = { depends = ["run"] }            # Alias
+
+# Cut a release: bump version, roll CHANGELOG, commit, tag (does not push)
+[tasks.release]
+description = "Release the software artifact: mise run release X.Y.Z"
+run = "scripts/release.sh"
 
 # Clean build artifacts
 [tasks.clean]

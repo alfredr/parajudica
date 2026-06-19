@@ -1,9 +1,9 @@
-PREFIX : <https://openprovenance.org/ns/parajudica#>
-PREFIX base: <https://openprovenance.org/ns/facet/base#>
-PREFIX hipaa: <https://openprovenance.org/ns/facet/hipaa#>
-PREFIX gdpr: <https://openprovenance.org/ns/facet/gdpr#>
-PREFIX ema: <https://openprovenance.org/ns/facet/ema#>
-PREFIX italy: <https://openprovenance.org/ns/facet/italy#>
+PREFIX : <https://parajudica.org/ns#>
+PREFIX base: <https://parajudica.org/ns/framework/base#>
+PREFIX hipaa: <https://parajudica.org/ns/framework/hipaa#>
+PREFIX gdpr: <https://parajudica.org/ns/framework/gdpr#>
+PREFIX ema: <https://parajudica.org/ns/framework/ema#>
+PREFIX italy: <https://parajudica.org/ns/framework/italy#>
 PREFIX app: <https://example.org/medical#>
 
 # Challenge 5: Reproduce Paper's Table 1 - Framework Divergence

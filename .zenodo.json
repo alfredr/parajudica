@@ -1,5 +1,5 @@
 {
-  "title": "Parajudica: An RDF-Based Reasoner and Metamodel for Multi-Framework Context-Dependent Data Compliance Assessments",
+  "title": "Parajudica: A Metamodel and RDF/SPARQL-Based Reasoning System for Context-Dependent Data Compliance Assessments",
   "upload_type": "software",
   "access_right": "open",
   "license": "cc-by-4.0",
@@ -26,5 +26,5 @@
     "data governance",
     "semantic web"
   ],
-  "description": "A metamodel and fixed-point inference system for context-dependent data classification and multi-framework compliance."
+  "description": "A metamodel and fixed-point inference system for context-dependent data classification and multi-framework compliance. The Python implementation is licensed under Apache-2.0; the vocabulary, ontologies, and data are licensed under CC-BY-4.0."
 }

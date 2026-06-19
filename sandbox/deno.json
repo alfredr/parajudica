@@ -1,0 +1,30 @@
+{
+  "name": "@parajudica/monorepo",
+  "version": "0.1.0",
+  "exports": "./packages/schema/mod.ts",
+  "workspace": [
+    "packages/schema",
+    "packages/engine",
+    "apps/api",
+    "apps/web"
+  ],
+  "tasks": {
+    "check": "deno check packages/*/mod.ts apps/*/src/main.ts",
+    "test": "deno test --allow-read packages/ apps/",
+    "fmt": "deno fmt",
+    "lint": "deno lint",
+    "dev:web": "cd apps/web && deno task dev",
+    "dev:api": "cd apps/api && deno task dev"
+  },
+  "imports": {
+    "@parajudica/schema": "./packages/schema/mod.ts",
+    "@parajudica/engine": "./packages/engine/mod.ts"
+  },
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "lib": ["dom", "dom.iterable", "esnext", "deno.ns"]
+  },
+  "nodeModulesDir": "auto",
+  "unstable": ["fmt-component"]
+}

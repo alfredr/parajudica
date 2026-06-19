@@ -4,5 +4,13 @@ version = "1.0.0"
 description = "GDPR compliance framework"
 depends_on = ["base"]
 
+[legal]
+jurisdiction = "EU"
+authority = "European Union (statute)"
+instrument = "Regulation (EU) 2016/679 (GDPR)"
+interpretation = "Personal data versus anonymous data; special categories; identifiability from cardinality and knowability."
+citation = "Regulation (EU) 2016/679"
+date = "2016-04"
+
 [files]
 model = ["model/gdpr.ttl"]

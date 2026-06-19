@@ -1,0 +1,47 @@
+name: Deploy site
+
+# Actions owns build + deploy; Netlify is just the host. Do NOT also enable
+# Netlify's Git auto-build, or deploys will run twice.
+# Required repo secrets: NETLIFY_AUTH_TOKEN (personal access token), NETLIFY_SITE_ID.
+# main -> production deploy; pull_request -> preview deploy (e.g. contrib frameworks).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build public/
+        run: |
+          mkdir -p public
+          # human site assets (everything except the build scripts / diagram source)
+          cp -r site/. public/
+          rm -f public/publish-vocab.py public/build-ontology.sh public/ontology.dot
+          # module tree + /ns/index.json + /registry + _redirects/_headers (manifest-driven)
+          python site/publish-vocab.py --out public
+
+      - name: Deploy to Netlify (production)
+        if: github.ref == 'refs/heads/main'
+        run: npx --yes netlify-cli@17 deploy --prod --dir=public --site="$NETLIFY_SITE_ID" --auth="$NETLIFY_AUTH_TOKEN"
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+
+      - name: Deploy to Netlify (preview)
+        if: github.event_name == 'pull_request'
+        run: npx --yes netlify-cli@17 deploy --dir=public --site="$NETLIFY_SITE_ID" --auth="$NETLIFY_AUTH_TOKEN"
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}

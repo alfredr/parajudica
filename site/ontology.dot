@@ -1,0 +1,101 @@
+// Parajudica core metamodel (pj:) vocabulary schema.
+// Regenerate the theme-aware SVG with:  sh build-ontology.sh
+//
+// Reading guide:
+//   - boxes are rdfs:Classes; dashed boxes are abstract (never instantiated)
+//   - hollow-triangle edges are rdfs:subClassOf
+//   - labelled solid edges are rdf:Properties drawn from domain to range
+//   - fill colour groups classes by role: assertions (blue), primary
+//     structures (grey), rules & declarations (tan), conditions (lavender)
+//   - the dark-blue box is ComplianceAssertion, the principal inference output
+digraph parajudica {
+  bgcolor="transparent";
+  rankdir=LR;
+  nodesep=0.22;
+  ranksep=0.9;
+  fontname="Helvetica";
+
+  node [shape=box, style="rounded,filled", fillcolor="#f4f4f2",
+        color="#cfcfc9", fontcolor="#1a1a1a", fontname="Helvetica",
+        fontsize=13, margin="0.15,0.09", penwidth=1];
+  edge [color="#9a9a94", fontname="Helvetica", fontsize=11,
+        fontcolor="#6b6b66", arrowsize=0.7, penwidth=1];
+
+  // ---- node categories (fill colour = role) ------------------------
+  Assertion            [class="assert abstract", style="rounded,filled,dashed", fillcolor="#eef3fd"];
+  ComplianceAssertion  [class="assert hub",      fillcolor="#e8effd", color="#1a56db"];
+  ContainmentAssertion [class="assert",          fillcolor="#eef3fd"];
+  ConditionEvaluation  [class="assert",          fillcolor="#eef3fd"];
+
+  Framework       [class="primary", fillcolor="#edeff2"];
+  Facet           [class="primary", fillcolor="#edeff2"];
+  ComplianceLabel [class="primary", fillcolor="#edeff2"];
+  DataContainer   [class="primary", fillcolor="#edeff2"];
+  GovernanceScope [class="primary", fillcolor="#edeff2"];
+
+  Declaration            [class="rule abstract", style="rounded,filled,dashed", fillcolor="#f5eee1"];
+  ConditionalDeclaration [class="rule abstract", style="rounded,filled,dashed", fillcolor="#f5eee1"];
+  Rule                   [class="rule abstract", style="rounded,filled,dashed", fillcolor="#f5eee1"];
+  SubclassDeclaration    [class="rule", fillcolor="#f7f1e6"];
+  EquivalenceDeclaration [class="rule", fillcolor="#f7f1e6"];
+  ConditionalEquivalence [class="rule", fillcolor="#f7f1e6"];
+  PropagationRule        [class="rule", fillcolor="#f7f1e6"];
+
+  Condition              [class="cond abstract", style="rounded,filled,dashed", fillcolor="#efe9f5"];
+  HasLabelCondition      [class="cond", fillcolor="#f3eef8"];
+  ContainsLabelCondition [class="cond", fillcolor="#f3eef8"];
+  RelationLabelCondition [class="cond", fillcolor="#f3eef8"];
+  ComparisonCondition    [class="cond", fillcolor="#f3eef8"];
+  CompositeCondition     [class="cond", fillcolor="#f3eef8"];
+
+  // ---- horizontal bands (one rank per role layer) -----------------
+  { rank=same; Assertion; }
+  { rank=same; ComplianceAssertion; ContainmentAssertion; ConditionEvaluation; }
+  { rank=same; Framework; Facet; ComplianceLabel; DataContainer; GovernanceScope; }
+  { rank=same; Declaration; ConditionalDeclaration; Rule; }
+  { rank=same; SubclassDeclaration; EquivalenceDeclaration; ConditionalEquivalence; PropagationRule; }
+  { rank=same; Condition; }
+  { rank=same; HasLabelCondition; ContainsLabelCondition; RelationLabelCondition; ComparisonCondition; CompositeCondition; }
+
+  // ---- subClassOf (hollow triangle) -------------------------------
+  edge [arrowhead=onormal, color="#c4c4be"];
+  ComplianceAssertion    -> Assertion;
+  ContainmentAssertion   -> Assertion;
+  SubclassDeclaration    -> Declaration;
+  EquivalenceDeclaration -> Declaration;
+  ConditionalDeclaration -> Declaration;
+  ConditionalEquivalence -> ConditionalDeclaration;
+  PropagationRule        -> Rule;
+  HasLabelCondition      -> Condition;
+  ContainsLabelCondition -> Condition;
+  RelationLabelCondition -> Condition;
+  ComparisonCondition    -> Condition;
+  CompositeCondition     -> Condition;
+
+  // ---- object properties (domain -> range) ------------------------
+  edge [arrowhead=normal, color="#9a9a94"];
+
+  // assertions reference the primary structures
+  ComplianceAssertion -> DataContainer   [label="assertedOn"];
+  ComplianceAssertion -> ComplianceLabel [label="assertsLabel"];
+  ComplianceAssertion -> GovernanceScope [label="assertedInScope"];
+  ComplianceAssertion -> Framework       [label="assertedByFramework"];
+  ConditionEvaluation -> DataContainer   [label="evaluatedOn", constraint=false];
+
+  // relations among primary structures
+  Framework       -> Framework        [label="extends"];
+  Framework       -> Facet            [label="hasFacet", constraint=false];
+  ComplianceLabel -> Facet            [label="belongsToFacet", constraint=false];
+  ComplianceLabel -> ComplianceLabel  [label="isSubclassOf"];
+  Facet           -> Facet            [label="hasSubfacet"];
+  DataContainer   -> DataContainer    [label="contains, joinableWith"];
+  DataContainer   -> GovernanceScope  [label="availableInScope", constraint=false];
+
+  // frameworks own rules and declarations; these map / propagate labels
+  Framework              -> Declaration     [label="declares"];
+  Framework              -> PropagationRule [label="hasPropagationRule"];
+  Declaration            -> ComplianceLabel [label="fromLabels / toLabel", constraint=false];
+  PropagationRule        -> ComplianceLabel [label="propagatesLabel", constraint=false];
+  ConditionalDeclaration -> Condition       [label="hasCondition"];
+  CompositeCondition     -> Condition       [label="hasCondition (AND/OR)", style=dashed, constraint=false];
+}

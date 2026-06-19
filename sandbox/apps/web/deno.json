@@ -1,0 +1,21 @@
+{
+  "name": "@parajudica/web",
+  "version": "0.1.0",
+  "exports": "./src/main.ts",
+  "tasks": {
+    "dev": "deno run -A npm:vite dev",
+    "build": "deno run -A npm:vite build",
+    "preview": "deno run -A npm:vite preview"
+  },
+  "imports": {
+    "@parajudica/schema": "../../packages/schema/mod.ts",
+    "@parajudica/engine": "../../packages/engine/mod.ts",
+    "svelte": "npm:svelte@^5.25.0",
+    "svelte/": "npm:svelte@^5.25.0/",
+    "@sveltejs/vite-plugin-svelte": "npm:@sveltejs/vite-plugin-svelte@^5.0.0",
+    "@xyflow/svelte": "npm:@xyflow/svelte@^1.5.0",
+    "@dagrejs/dagre": "npm:@dagrejs/dagre@^1.1.8",
+    "vite": "npm:vite@^6.0.0",
+    "$lib/": "./src/lib/"
+  }
+}

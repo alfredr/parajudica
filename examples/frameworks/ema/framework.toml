@@ -4,5 +4,13 @@ version = "1.0.0"
 description = "European Medicines Agency interpretation of GDPR for clinical data"
 depends_on = ["gdpr"]
 
+[legal]
+jurisdiction = "EU"
+authority = "European Medicines Agency"
+instrument = "Regulation (EU) 2016/679 (GDPR)"
+interpretation = "Risk-based disclosure of clinical trial data; k >= 12 threshold for public release."
+citation = "EMA Policy 0070 (EMA/240810/2013); External Guidance EMA/90915/2016 v1.5"
+date = "2025-05"
+
 [files]
 model = ["model/ema.ttl"]

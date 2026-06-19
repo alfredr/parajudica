@@ -1,5 +1,32 @@
 # Privacy Schema Examples
-.PHONY: example debug-kanon challenge1 challenge2 challenge3 challenge4 challenges
+.PHONY: example debug-kanon challenge1 challenge2 challenge3 challenge4 challenges sandbox sandbox-web sandbox-api benchmark site deploy
+
+# Scalability benchmark: scale the example tables (rows only) and time inference
+# over the full framework set. Optionally pass sizes: make benchmark SIZES="100 1000"
+benchmark:
+	uv run python benchmark/run_benchmark.py $(SIZES)
+
+# Build the static site into public/: human page + module tree + /ns/index.json
+# + /registry + content-negotiation config. Always rebuilt from source.
+site:
+	rm -rf public && mkdir -p public
+	cp -r site/. public/
+	rm -f public/publish-vocab.py public/build-ontology.sh public/ontology.dot
+	uv run python site/publish-vocab.py --out public
+
+# Build then deploy to Netlify production (so a stale public/ can't ship).
+deploy: site
+	netlify deploy --prod --dir=public
+
+# Sandbox development servers
+sandbox:
+	cd sandbox && deno task dev:api & cd sandbox && deno task dev:web
+
+sandbox-web:
+	cd sandbox && deno task dev:web
+
+sandbox-api:
+	cd sandbox && deno task dev:api
 
 # Common display options
 DISPLAY_ARGS ?= --display-mode table --sort
@@ -13,7 +40,7 @@ endif
 
 # Run full example with all frameworks and k-anonymity
 example:
-	uv run python -m inference.cli $(CACHE) \
+	uv run python -m parajudica.cli $(CACHE) \
 		--frameworks examples/frameworks/base examples/frameworks/hipaa examples/frameworks/gdpr \
 		--data examples/db/env.ttl examples/db/medical/*.ttl examples/db/employee/*.ttl \
 		--display
@@ -38,7 +65,7 @@ challenge1:
 	@echo "This demonstrates the same data has different compliance status"
 	@echo "depending on what other data is available in that governance scope."
 	@echo ""
-	@uv run python -m inference.cli $(CACHE) \
+	@uv run python -m parajudica.cli $(CACHE) \
 		--frameworks examples/frameworks/base examples/frameworks/hipaa examples/frameworks/gdpr \
 		--data examples/db/env.ttl examples/db/medical/*.ttl examples/db/employee/*.ttl \
 		--query examples/challenges/challenge1/validate.rq \
@@ -66,7 +93,7 @@ challenge2:
 	@echo ""
 	@echo "The divergence shows how identical data receives different compliance classifications under each framework"
 	@echo ""
-	@uv run python -m inference.cli $(CACHE) \
+	@uv run python -m parajudica.cli $(CACHE) \
 		--frameworks examples/frameworks/base examples/frameworks/hipaa examples/frameworks/gdpr \
 		--data examples/db/env.ttl examples/db/medical/*.ttl examples/db/employee/*.ttl \
 		--query examples/challenges/challenge2/validate.rq \
@@ -81,7 +108,7 @@ challenge3:
 	@echo "Scenario A: WITH joinable relationships (standard env.ttl)"
 	@echo "Expected: ProvidersInfo gets PHI via joinable propagation from PatientEncounters"
 	@echo ""
-	@uv run python -m inference.cli $(CACHE) \
+	@uv run python -m parajudica.cli $(CACHE) \
 		--frameworks examples/frameworks/base examples/frameworks/hipaa examples/frameworks/gdpr \
 		--data examples/db/env.ttl examples/db/medical/*.ttl examples/db/employee/*.ttl \
 		--query examples/challenges/challenge3/validate.rq \
@@ -91,7 +118,7 @@ challenge3:
 	@echo "Scenario B: WITHOUT joinable relationships (env-no-join.ttl)"
 	@echo "Expected: ProvidersInfo has NO PHI (joinable propagation blocked)"
 	@echo ""
-	@uv run python -m inference.cli $(CACHE) \
+	@uv run python -m parajudica.cli $(CACHE) \
 		--frameworks examples/frameworks/base examples/frameworks/hipaa examples/frameworks/gdpr \
 		--data examples/challenges/challenge3/env-no-join.ttl examples/db/medical/*.ttl examples/db/employee/*.ttl \
 		--query examples/challenges/challenge3/validate.rq \
@@ -124,7 +151,7 @@ challenge4:
 	@echo ""
 	@echo "Note: AggregatedHealth has internal UUID but k-anonymity excludes InternalIdentifiers"
 	@echo ""
-	@uv run python -m inference.cli $(CACHE) \
+	@uv run python -m parajudica.cli $(CACHE) \
 		--frameworks examples/frameworks/base examples/frameworks/hipaa examples/frameworks/gdpr examples/frameworks/ema examples/frameworks/italy \
 		--data examples/db/env.ttl examples/db/medical/*.ttl examples/db/employee/*.ttl examples/db/research/*.ttl \
 		--query examples/challenges/challenge4/validate.rq \
@@ -146,7 +173,7 @@ challenge5:
 	@echo "- AggregatedHealth: k=3 with internal UUID"
 	@echo "- AggregatedHealth12: k=12 with internal UUID"
 	@echo ""
-	@uv run python -m inference.cli $(CACHE) \
+	@uv run python -m parajudica.cli $(CACHE) \
 		--frameworks examples/frameworks/base examples/frameworks/hipaa examples/frameworks/gdpr examples/frameworks/ema examples/frameworks/italy \
 		--data examples/db/env.ttl examples/db/medical/*.ttl examples/db/employee/*.ttl examples/db/research/*.ttl \
 		--query examples/challenges/challenge5/framework-divergence.rq \

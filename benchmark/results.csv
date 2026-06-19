@@ -1,0 +1,5 @@
+rows_per_table,rounds,converged,wall_seconds,inference_seconds,final_triples,generated_triples
+10,9,True,20.96,20.91,256500,252661
+25,9,True,41.88,41.79,449410,443894
+50,9,True,103.89,103.7,893089,883998
+100,9,True,292.98,292.58,1780246,1764005

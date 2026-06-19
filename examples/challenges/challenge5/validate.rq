@@ -1,9 +1,9 @@
-PREFIX : <https://openprovenance.org/ns/parajudica#>
-PREFIX base: <https://openprovenance.org/ns/facet/base#>
-PREFIX hipaa: <https://openprovenance.org/ns/facet/hipaa#>
-PREFIX gdpr: <https://openprovenance.org/ns/facet/gdpr#>
-PREFIX italy: <https://openprovenance.org/ns/facet/italy#>
-PREFIX sdc: <https://openprovenance.org/ns/facet/sdc#>
+PREFIX : <https://parajudica.org/ns#>
+PREFIX base: <https://parajudica.org/ns/framework/base#>
+PREFIX hipaa: <https://parajudica.org/ns/framework/hipaa#>
+PREFIX gdpr: <https://parajudica.org/ns/framework/gdpr#>
+PREFIX italy: <https://parajudica.org/ns/framework/italy#>
+PREFIX sdc: <https://parajudica.org/ns/sdc#>
 PREFIX app: <https://example.org/medical#>
 
 # Challenge 5: K-Anonymity with Internal UUID

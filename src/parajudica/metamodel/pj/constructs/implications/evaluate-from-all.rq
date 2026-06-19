@@ -1,0 +1,58 @@
+PREFIX pj: <https://parajudica.org/ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# Evaluate ConditionalImplications with fromAllLabels.
+# Fires when (a) all required labels are present in the container in scope and
+# (b) the condition has a true ConditionEvaluation in that container/scope.
+# Composite and atomic conditions both produce ConditionEvaluations via their
+# dedicated evaluators, so this query is condition-type-agnostic.
+
+CONSTRUCT {
+    ?newAssertion a pj:ComplianceAssertion ;
+                  pj:assertedOn ?container ;
+                  pj:assertedInScope ?scope ;
+                  pj:assertsLabel ?toLabel ;
+                  pj:assertedByFramework ?framework ;
+                  pj:derivedVia pj:ImplicationFromAllRule .
+}
+WHERE {
+    ?framework pj:declaresImplication ?impl .
+    ?impl a pj:ConditionalImplication ;
+          pj:fromAllLabels ?fromLabels ;
+          pj:toLabel ?toLabel ;
+          pj:hasCondition ?condition .
+
+    {
+        SELECT ?impl (COUNT(?reqLabel) AS ?reqCount)
+        WHERE {
+            ?impl pj:fromAllLabels ?fl .
+            ?fl rdf:rest*/rdf:first ?reqLabel .
+        } GROUP BY ?impl
+    }
+    {
+        SELECT ?impl ?container ?scope (COUNT(DISTINCT ?present) AS ?presentCount)
+        WHERE {
+            ?impl pj:fromAllLabels ?fl .
+            ?fl rdf:rest*/rdf:first ?reqLabel .
+            ?container pj:hasLabelInScope ?ls .
+            ?ls pj:label ?reqLabel ; pj:scope ?scope .
+            BIND(?reqLabel AS ?present)
+        } GROUP BY ?impl ?container ?scope
+    }
+    FILTER(?presentCount >= ?reqCount && ?reqCount > 0)
+
+    ?eval a pj:ConditionEvaluation ;
+          pj:evaluatesCondition ?condition ;
+          pj:evaluatedOn ?container ;
+          pj:evaluatedInScope ?scope ;
+          pj:evaluationResult "true"^^xsd:boolean .
+
+    BIND(IRI(CONCAT("urn:skolem:from-all:",
+                    ENCODE_FOR_URI(STR(?container)), "_",
+                    ENCODE_FOR_URI(STR(?toLabel)), "_",
+                    ENCODE_FOR_URI(STR(?framework)), "_",
+                    ENCODE_FOR_URI(STR(?scope)))) AS ?newAssertion)
+    FILTER NOT EXISTS { ?newAssertion a pj:ComplianceAssertion }
+}

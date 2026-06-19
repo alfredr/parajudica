@@ -1,7 +1,7 @@
-PREFIX : <https://openprovenance.org/ns/parajudica#>
-PREFIX base: <https://openprovenance.org/ns/facet/base#>
-PREFIX hipaa: <https://openprovenance.org/ns/facet/hipaa#>
-PREFIX gdpr: <https://openprovenance.org/ns/facet/gdpr#>
+PREFIX : <https://parajudica.org/ns#>
+PREFIX base: <https://parajudica.org/ns/framework/base#>
+PREFIX hipaa: <https://parajudica.org/ns/framework/hipaa#>
+PREFIX gdpr: <https://parajudica.org/ns/framework/gdpr#>
 PREFIX app: <https://example.org/medical#>
 
 # Challenge 2: Framework Divergence - Show ALL labels

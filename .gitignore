@@ -1,6 +1,7 @@
 paper-examples/bin/target/**
 paper-examples/target/
-**node_modules/**
+node_modules/
+.vite/
 
 
 # LaTeX/TeXLive temporary files
@@ -40,3 +41,17 @@ htmlcov/
 *.swp
 *~
 .ty_cache/
+
+# Working notes (scratch; not part of the resource)
+notes/
+
+# Generated benchmark datasets (regenerable via benchmark/generate.py)
+benchmark/data/
+
+# Local Netlify folder
+.netlify
+
+# Generated site build output
+/public
+
+/paper-overleaf/

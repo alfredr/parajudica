@@ -1,14 +1,46 @@
 [build-system]
-requires = ["uv_build>=0.8.14,<0.9.0"]
+requires = ["uv_build>=0.8.14,<0.10.0"]
 build-backend = "uv_build"
 
 [project]
-name = "privacy-schema-inference"
+name = "parajudica"
 version = "0.1.0"
-description = "Privacy Schema Inference Engine for Compliance Frameworks"
+description = "RDF-based reasoner and metamodel for multi-framework, context-dependent data compliance assessments"
 readme = "README.md"
 requires-python = ">=3.13"
-classifiers = ["Private :: Do Not Upload"]
+# The Python code is Apache-2.0; the packaged metamodel ontologies under
+# src/parajudica/metamodel/ are CC-BY-4.0. See LICENSE and LICENSE-DATA.
+license = "Apache-2.0 AND CC-BY-4.0"
+license-files = ["LICENSE", "LICENSE-DATA"]
+authors = [
+    { name = "Luc Moreau" },
+    { name = "Alfred Rossi", email = "alfredr@gmail.com" },
+    { name = "Sophie Stalla-Bourdillon" },
+]
+keywords = [
+    "RDF",
+    "SPARQL",
+    "compliance",
+    "GDPR",
+    "HIPAA",
+    "data governance",
+    "semantic web",
+    "reasoner",
+    "ontology",
+    "privacy",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Legal Industry",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Security",
+    "Topic :: Software Development :: Libraries",
+]
 
 dependencies = [
     "rdflib>=6.0.0",
@@ -18,13 +50,18 @@ dependencies = [
     "pyyaml>=6.0.2",
 ]
 
+[project.urls]
+Homepage = "https://parajudica.org/"
+Repository = "https://github.com/alfredr/parajudica"
+Paper = "https://doi.org/10.5281/zenodo.17825089"
+
 [project.scripts]
-privacy-inference = "inference.cli:main"
+parajudica = "parajudica.cli:main"
+privacy-inference = "parajudica.cli:main"
 
 [tool.uv.build-backend]
-# Module has a different name than the package
-module-name = "inference"
-module-root = "inference/src"
+module-name = "parajudica"
+module-root = "src"
 
 [dependency-groups]
 dev = [
@@ -35,7 +72,7 @@ dev = [
 ]
 
 [tool.pytest.ini_options]
-pythonpath = ["inference/src"]
+pythonpath = ["src"]
 testpaths = ["tests"]
 
 [tool.ruff]
@@ -47,6 +84,6 @@ select = ["E", "W", "F", "I", "B", "C4", "UP", "N", "SIM"]
 ignore = ["E501", "B008", "C901", "SIM108"]
 
 [tool.ty.environment]
-root = ["inference/src"]
+root = ["src"]
 python-version = "3.13"
 extra-paths = [".venv/lib/python3.13/site-packages"]

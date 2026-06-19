@@ -1,6 +1,6 @@
-PREFIX : <https://openprovenance.org/ns/parajudica#>
-PREFIX sdc: <https://openprovenance.org/ns/facet/sdc#>
-PREFIX base: <https://openprovenance.org/ns/facet/base#>
+PREFIX : <https://parajudica.org/ns#>
+PREFIX sdc: <https://parajudica.org/ns/sdc#>
+PREFIX base: <https://parajudica.org/ns/framework/base#>
 
 # Cache QI signatures for each record
 # This CONSTRUCT query builds quasi-identifier combinations for records

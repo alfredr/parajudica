@@ -1,6 +1,6 @@
 # Parajudica
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17825090.svg)](https://doi.org/10.5281/zenodo.17825090)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17825089.svg)](https://doi.org/10.5281/zenodo.17825089)
 
 A metamodel and fixed-point inference system for context-dependent data classification and multi-framework compliance.
 
@@ -14,11 +14,10 @@ The system uses fixed-point inference to propagate compliance labels through con
 
 ```
 parajudica/
-├── inference/
-│   ├── metamodel/
-│   │   ├── pj/              # Core ontology, rules, SPARQL constructs
-│   │   └── sdc/             # Structured Data Containers extension
-│   └── src/inference/       # Python inference engine
+├── src/parajudica/          # Python package (the `parajudica` import package)
+│   └── metamodel/           # Packaged ontology data, shipped in the wheel
+│       ├── pj/              # Core ontology, rules, SPARQL constructs
+│       └── sdc/             # Structured Data Containers extension
 ├── examples/
 │   ├── frameworks/
 │   │   ├── base/            # Common facets and labels
@@ -37,7 +36,7 @@ The metamodel consists of a small set of components that work together. Data Con
 
 Rules take several forms. Simple implication rules derive labels from the presence of certain facets, for example when data is both individual and healthcare-related, it is classified as PHI. Conditional implication rules require additional field-level checks before assigning a label, making them suitable for nuanced cases. Propagation rules specify how labels spread across relationships: downward from a parent container to its children, upward from children to their parent, horizontally between sibling containers, or across joinable relationships between tables.
 
-The inference engine computes a fixed-point result starting from initial assertions. Jena rules are compiled into SPARQL CONSTRUCT queries and blank nodes are skolemized to ensure unique identifiers. The engine iteratively applies rules until no new assertions are produced, which typically requires fewer than ten rounds. This fixed-point procedure guarantees consistent classification across multiple frameworks and scopes, while remaining computationally efficient with polynomial complexity relative to the size of the system.
+The inference engine computes a fixed-point result starting from initial assertions. Jena rules are compiled into SPARQL CONSTRUCT queries and blank nodes are skolemized to ensure unique identifiers. The engine iteratively applies rules until no new assertions are produced. The number of rounds is bounded by the size of the derivable assertion set, and is small in practice on the shallow schemas typical of real data. The procedure is deterministic and well-defined across multiple frameworks and scopes: frameworks may diverge, and their differing classifications are retained as parallel outputs rather than reconciled. Data complexity is polynomial in the size of the system.
 
 ## Example: Healthcare Compliance Scenario
 
@@ -160,18 +159,25 @@ HIPAA Expert Determination accepts k>=3, EMA requires k>=12, and the Italian DPA
 
 ## Paper
 
-The paper describing the metamodel and formalization is available in `paper/main.tex`. It presents the formal semantics of the system, explains fixed-point computation, and provides comparative analysis of regulatory frameworks. The paper also evaluates performance, documents implementation, and includes real-world validation scenarios.
+The paper describing the metamodel and formalization is available in `paper/main.tex`. It presents the formal semantics of the system, explains fixed-point computation, and provides comparative analysis of regulatory frameworks. The paper documents the implementation and includes illustrative healthcare validation scenarios drawn from documented regulatory requirements.
 
 ## Quick Start
 
-Installation can be done either with uv, the recommended method, or directly with pip. Once installed, the framework's challenges can be run through the provided Makefile. These challenges illustrate the main concepts: context-dependent classification, divergence between frameworks such as HIPAA and GDPR, the role of propagation semantics across hierarchical or joinable relationships, and standards for de-identification such as k-anonymity under different frameworks. Running all challenges together reproduces the comparisons described in the accompanying paper.
+To use the reasoner as a library or command line tool, install the published package from [PyPI](https://pypi.org/project/parajudica/). The packaged metamodel ontologies are bundled, so no checkout is required.
 
 ```bash
-# Install dependencies with uv (recommended)
-uv pip install -e .
+pip install parajudica   # or: uv pip install parajudica
 
-# Or with pip
-pip install -e .
+# Then run the CLI
+parajudica --help
+```
+
+To work on the source or reproduce the paper's challenges, clone the repository and do an editable install. Once installed, the challenges can be run through the provided Makefile. These challenges illustrate the main concepts: context-dependent classification, divergence between frameworks such as HIPAA and GDPR, the role of propagation semantics across hierarchical or joinable relationships, and standards for de-identification such as k-anonymity under different frameworks. Running all challenges together reproduces the comparisons described in the accompanying paper.
+
+```bash
+# Editable install with uv (recommended) or pip
+uv pip install -e .
+# pip install -e .
 
 # Run all challenges
 make challenges
@@ -181,7 +187,7 @@ make challenges
 
 ```bibtex
 @article{moreau2025parajudica,
-  title={Parajudica: An RDF-Based Reasoner and Metamodel for Multi-Framework Context-Dependent Data Compliance Assessments},
+  title={Parajudica: A Metamodel and RDF/SPARQL-Based Reasoning System for Context-Dependent Data Compliance Assessments},
   author={Moreau, Luc and Rossi, Alfred and Stalla-Bourdillon, Sophie},
   year={2025}
 }

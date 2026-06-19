@@ -1,10 +1,22 @@
-@prefix : <https://openprovenance.org/ns/facet/hipaa#> .
-@prefix pj: <https://openprovenance.org/ns/parajudica#> .
-@prefix base: <https://openprovenance.org/ns/facet/base#> .
-@prefix hipaa: <https://openprovenance.org/ns/facet/hipaa#> .
+@prefix : <https://parajudica.org/ns/framework/hipaa#> .
+@prefix pj: <https://parajudica.org/ns#> .
+@prefix base: <https://parajudica.org/ns/framework/base#> .
+@prefix hipaa: <https://parajudica.org/ns/framework/hipaa#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix vann: <http://purl.org/vocab/vann/> .
+
+<https://parajudica.org/ns/framework/hipaa> a owl:Ontology ;
+    dcterms:title "Parajudica HIPAA Framework" ;
+    dcterms:creator "Luc Moreau", "Alfred Rossi", "Sophie Stalla-Bourdillon" ;
+    dcterms:license <https://creativecommons.org/licenses/by/4.0/> ;
+    dcterms:modified "2026-06-19"^^xsd:date ;
+    owl:versionInfo "1.0.0" ;
+    vann:preferredNamespacePrefix "hipaa" ;
+    vann:preferredNamespaceUri "https://parajudica.org/ns/framework/hipaa#" .
 
 
 :HIPAAFramework a pj:Framework ;

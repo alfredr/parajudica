@@ -1,0 +1,15 @@
+{
+  "name": "@parajudica/web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^5.0.0",
+    "svelte": "^5.25.0",
+    "vite": "^6.0.0"
+  },
+  "dependencies": {
+    "@xyflow/svelte": "^1.5.0",
+    "@dagrejs/dagre": "^1.1.8"
+  }
+}

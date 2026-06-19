@@ -4,5 +4,13 @@ version = "1.0.0"
 description = "Italy-specific GDPR extensions"
 depends_on = ["gdpr"]
 
+[legal]
+jurisdiction = "EU/IT"
+authority = "Garante per la protezione dei dati personali"
+instrument = "Regulation (EU) 2016/679 (GDPR)"
+interpretation = "Singling-out reading: any unique identifier renders data personal regardless of re-identification risk."
+citation = "Provvedimento n. 226, 1 June 2023"
+date = "2023-06"
+
 [files]
 model = ["model/italy.ttl"]

@@ -1,0 +1,25 @@
+Parajudica metamodel and ontology data license
+================================================
+
+The Python source code in this distribution is licensed under the Apache
+License, Version 2.0 (see the LICENSE file).
+
+The metamodel and framework ontology data shipped under
+`src/parajudica/metamodel/` and `examples/` (the Turtle ontologies,
+SPARQL constructs, rule files, framework manifests, and sample data),
+together with the ontologies published at https://parajudica.org/, are
+licensed separately under the Creative Commons Attribution 4.0
+International License (CC-BY-4.0).
+
+  SPDX-License-Identifier: CC-BY-4.0
+  Full text: https://creativecommons.org/licenses/by/4.0/legalcode
+
+You are free to share and adapt this material for any purpose, including
+commercially, provided you give appropriate credit.
+
+Attribution:
+
+  Parajudica: A Metamodel and RDF/SPARQL-Based Reasoning System for
+  Context-Dependent Data Compliance Assessments.
+  Luc Moreau, Alfred Rossi, and Sophie Stalla-Bourdillon.
+  https://doi.org/10.5281/zenodo.17825089

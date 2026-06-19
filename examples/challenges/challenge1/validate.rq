@@ -1,6 +1,6 @@
-PREFIX : <https://openprovenance.org/ns/parajudica#>
-PREFIX base: <https://openprovenance.org/ns/facet/base#>
-PREFIX hipaa: <https://openprovenance.org/ns/facet/hipaa#>
+PREFIX : <https://parajudica.org/ns#>
+PREFIX base: <https://parajudica.org/ns/framework/base#>
+PREFIX hipaa: <https://parajudica.org/ns/framework/hipaa#>
 PREFIX app: <https://example.org/medical#>
 
 # Challenge 1: Context-Dependent Classification

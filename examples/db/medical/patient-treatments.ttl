@@ -1,8 +1,8 @@
-@prefix : <https://openprovenance.org/ns/facet/sdc#> .
+@prefix : <https://parajudica.org/ns/sdc#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix pj: <https://openprovenance.org/ns/parajudica#> .
-@prefix base: <https://openprovenance.org/ns/facet/base#> .@prefix app: <https://example.org/medical#> .
+@prefix pj: <https://parajudica.org/ns#> .
+@prefix base: <https://parajudica.org/ns/framework/base#> .@prefix app: <https://example.org/medical#> .
 
 app:PatientTreatments a :Table ;
   pj:hasTag base:Healthcare ;

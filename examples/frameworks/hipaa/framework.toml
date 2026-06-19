@@ -4,5 +4,13 @@ version = "1.0.0"
 description = "HIPAA Privacy Rule compliance framework"
 depends_on = ["base"]
 
+[legal]
+jurisdiction = "US"
+authority = "HHS Office for Civil Rights"
+instrument = "HIPAA Privacy Rule, 45 C.F.R. Parts 160 and 164"
+interpretation = "Protected Health Information via the designated record set; de-identification by Safe Harbor (18 identifiers) or Expert Determination."
+citation = "45 C.F.R. 164.514"
+date = "2013"
+
 [files]
 model = ["model/hipaa.ttl"]

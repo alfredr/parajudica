@@ -1,9 +1,6 @@
 # Contributing
 
-The most useful contribution is a new **framework module**: a regulation,
-guidance, or interpretation encoded as declarative rules. Engine and
-core-metamodel changes are welcome too, as issues or pull requests against
-`src/parajudica/`.
+Contributions are welcome, especially **framework modules** modeling regulation, guidance, or interpretations thereof. Engine and core-metamodel changes are welcome too, as issues or pull requests against `src/parajudica/`.
 
 ## Add a framework module
 
@@ -19,7 +16,7 @@ examples/frameworks/<name>/
   updates/            # optional SPARQL UPDATE
 ```
 
-The manifest declares the module and the legal basis it rests on:
+The manifest declares the module and and targeted regulation:
 
 ```toml
 name = "<name>"
@@ -28,7 +25,7 @@ version = "1.0.0"
 description = "One line on what this framework encodes"
 depends_on = ["gdpr"]    # other modules it extends, optional
 
-[legal]                  # what this encoding interprets, and on whose authority
+[legal]                  
 jurisdiction = "EU"
 authority = "European Medicines Agency"
 instrument = "Regulation (EU) 2016/679 (GDPR)"
@@ -40,23 +37,4 @@ date = "2025-05"
 model = ["model/<name>.ttl"]
 ```
 
-The model's Turtle must declare an `owl:Ontology` header whose IRI is under
-`https://parajudica.org/ns/framework/<name>`, with a `dcterms:title`. That IRI
-is how the module is published and dereferenced.
-
-The `[legal]` table is required for a framework module. An encoding is one
-interpretation of a source, so cite the authority and instrument it rests on.
-It also drives search and filtering in the registry.
-
-## Publish
-
-The build indexes every manifest automatically:
-
-```bash
-make site
-```
-
-Your module gets a dereferenceable IRI, an immutable version snapshot, and an
-entry in the [registry](https://parajudica.org/registry). Open a pull request to
-land it. To keep a module hosted yourself, open an issue and we can index it
-instead.
+The model's Turtle must declare an `owl:Ontology` header whose IRI is under `https://parajudica.org/ns/framework/<name>`, with a `dcterms:title`, which is how the module is referenced.Moreover, the `[legal]` table is required for framework modules and drives discovery, search, and filtering.

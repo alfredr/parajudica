@@ -18,7 +18,7 @@ parajudica --help
 
 ## Contributing
 
-The most useful contribution is a new framework module: a regulation or interpretation encoded as declarative rules, with a manifest citing the legal source it rests on. The [registry](/registry) indexes every module automatically. See [CONTRIBUTING](https://github.com/alfredr/parajudica/blob/main/CONTRIBUTING.md).
+The most useful contribution is a new framework module: a regulation or interpretation encoded as declarative rules, with a manifest declaring the targeted legal framework. Accepted contributions are published to the [registry](/registry). See [CONTRIBUTING](https://github.com/alfredr/parajudica/blob/main/CONTRIBUTING.md).
 
 ## About the name
 
